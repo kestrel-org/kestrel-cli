@@ -1,0 +1,4 @@
+[submodule "src/templates/angular-node"]
+	path = src/templates/angular-node
+	url = https://github.com/template-angular-node/template-angular-node
+	branch = main
