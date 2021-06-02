@@ -1,0 +1,4 @@
+node_modules
+dist
+logs
+dbconfig.json
