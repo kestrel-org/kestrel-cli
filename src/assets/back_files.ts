@@ -1,0 +1,28 @@
+const back_files = [
+    'src/configs/checkAuthenticated.js.ejs',
+    'src/configs/checkToken.js.ejs',
+    'src/configs/cors.js.ejs',
+    'src/configs/helmet.js.ejs',
+    'src/configs/logger.js.ejs',
+    'src/configs/session.js.ejs',
+    'src/configs/swagger.js.ejs',
+    'src/migrations/20200308160133-create-users.js.ejs',
+    'src/models/index.js.ejs',
+    'src/models/users.js.ejs',
+    'src/routes/exemple.js.ejs',
+    'src/routes/routes.js.ejs',
+    'src/seeders/20200308184954-insert-users.js.ejs',
+    'src/utils/asyncForEach.js.ejs',
+    'src/utils/crypto.js.ejs',
+    'src/utils/PDFGenerator.js.ejs',
+    'src/app.js.ejs',
+    'src/server.js.ejs',
+    'tests/exemple.spec.js.ejs',
+    '.babelrc.ejs',
+    '.env.ejs',
+    '.gitignore.ejs',
+    '.sequelizerc.ejs',
+    'dbconfig.js.ejs',
+    'package.json.ejs'
+]
+export default back_files

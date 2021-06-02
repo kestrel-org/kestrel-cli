@@ -1,4 +1,5 @@
 import { GluegunToolbox } from 'gluegun'
+import back_files from '../assets/back_files'
 
 type TemplateProps = {
   name: string
@@ -22,15 +23,20 @@ const command  = {
       system
     } = toolbox
 
-     // set up initial props (to pass into templates)
-    //  const options = parameters.options
-    //  const back = Boolean(options.back)
-    //  const front = Boolean(options.front)
+    //  set up initial props (to pass into templates)
+    const options = parameters.options
+    let back = Boolean(options.back)
+    let front = Boolean(options.front)
 
-     const props: TemplateProps = {
-        name: parameters.first
-     }
+    if(!front && !back){
+      front = true
+      back = true
+    }
 
+    const props: TemplateProps = {
+      name: parameters.first
+    }
+    
     if (!props.name || props.name.length === 0) {
       error('You must provide a valid project name.')
       error('Example: kc new franklin')
@@ -55,33 +61,6 @@ const command  = {
 
     let generators = []
 
-    const back_files = [
-      'src/configs/checkAuthenticated.js.ejs',
-      'src/configs/checkToken.js.ejs',
-      'src/configs/cors.js.ejs',
-      'src/configs/helmet.js.ejs',
-      'src/configs/logger.js.ejs',
-      'src/configs/session.js.ejs',
-      'src/configs/swagger.js.ejs',
-      'src/migrations/20200308160133-create-users.js.ejs',
-      'src/models/index.js.ejs',
-      'src/models/users.js.ejs',
-      'src/routes/exemple.js.ejs',
-      'src/routes/routes.js.ejs',
-      'src/seeders/20200308184954-insert-users.js.ejs',
-      'src/utils/asyncForEach.js.ejs',
-      'src/utils/crypto.js.ejs',
-      'src/utils/PDFGenerator.js.ejs',
-      'src/app.js.ejs',
-      'src/server.js.ejs',
-      'tests/exemple.spec.js.ejs',
-      '.babelrc.ejs',
-      '.env.ejs',
-      '.gitignore.ejs',
-      '.sequelizerc.ejs',
-      'dbconfig.js.ejs',
-      'package.json.ejs'
-    ]
     generators = back_files.reduce((res,file)=>{
       const generator = generate({
         template: `backend/${file}`,
