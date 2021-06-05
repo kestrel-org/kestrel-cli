@@ -1,42 +1,66 @@
-import { GluegunToolbox } from 'gluegun'
-import back_files from '../assets/back_files'
+import {
+  GluegunToolbox
+} from 'gluegun'
+const back_files = require('../assets/back_files')
+const front_files = require('../assets/front_files')
+const main_files = require('../assets/main_files')
 
-type TemplateProps = {
-  name: string
-}
-
-const command  = {
+const command = {
   name: 'new',
   alias: ['n'],
-  help : {
-    
+  help: {
+
   },
-  description : "Create new project",
+  description: "Create new project",
   run: async (toolbox: GluegunToolbox) => {
     const {
       parameters,
-      print:{error,info},
-      strings:{kebabCase},
-      filesystem:{exists,dir,remove},
-      template : {generate},
+      print: {
+        error,
+        info
+      },
+      strings: {
+        kebabCase
+      },
+      filesystem: {
+        exists,
+        remove,
+        copy,
+        cwd,
+        separator
+      },
       prompt,
-      system
+      system,
+      template: {
+        generate
+      }
     } = toolbox
 
     //  set up initial props (to pass into templates)
     const options = parameters.options
-    let back = Boolean(options.back)
-    let front = Boolean(options.front)
-
-    if(!front && !back){
-      front = true
-      back = true
-    }
-
-    const props: TemplateProps = {
+    let back = Boolean(options.back) || Boolean(options.b)
+    let front = Boolean(options.front) || Boolean(options.f)
+    const props = {
       name: parameters.first
     }
-    
+
+    let toCreate = ""
+    let templateFiles = [back_files, front_files, main_files]
+    let single = false;
+
+    if (front && !back) {
+      toCreate = "frontend"
+      templateFiles = [front_files]
+      props['fname'] = props.name
+      single = true
+    }
+    if (back && !front) {
+      toCreate = "backend"
+      templateFiles = [back_files]
+      props['bname'] = props.name
+      single = true
+    }
+
     if (!props.name || props.name.length === 0) {
       error('You must provide a valid project name.')
       error('Example: kc new franklin')
@@ -48,35 +72,58 @@ const command  = {
       return undefined
     }
 
-    if(exists(props.name)){
+    if (exists(props.name)) {
       error(`A directory named ${props.name} already exists !`)
       const overwrite = await prompt.confirm('Overwrite ?')
-      if(!overwrite){
+      if (!overwrite) {
         return undefined
       }
+      info(`Removing directory`)
       remove(props.name)
     }
-
-    dir(props.name)
+    info(`Copy directory`)
+    copy(__dirname + '/../templates/angular-node/' + toCreate, cwd() + separator + props.name, {
+      overwrite: true,
+      matching: '!*.ejs'
+    })
 
     let generators = []
-
-    generators = back_files.reduce((res,file)=>{
-      const generator = generate({
-        template: `backend/${file}`,
-        target: `${props.name}/${file.replace('.ejs', '')}`,
-        props: props,
-      })
-      return res.concat(generator)
-    },generators)
-
+    for (let files of templateFiles) {
+      generators = files.toTransform.reduce((res, file) => {
+        const generator = generate({
+          template: `${file.path + file.filename}.ejs`,
+          target: `${props.name}/${(single ? file.createPath : files.part) + file.filename.replace('.ejs', '')}`,
+          props: props,
+        })
+        return res.concat(generator)
+      }, generators)
+    }
+    info(`Generate templates`)
     await Promise.all(generators)
 
-    await system.spawn(`cd ${props.name} && npm install --silent`, {
-      shell: true,
-      stdio: 'inherit',
-    })
-    info("Backend created ! ")
+    let installs = [];
+    if (single) {
+      installs.push(
+        system.spawn(`cd ${props.name} && npm install --silent`, {
+          shell: true,
+          stdio: 'inherit',
+        })
+      )
+    } else {
+      installs.push(
+        system.spawn(`cd ${props.name}/frontend && npm install --silent`, {
+          shell: true,
+          stdio: 'inherit',
+        }),
+        system.spawn(`cd ${props.name}/backend && npm install --silent`, {
+          shell: true,
+          stdio: 'inherit',
+        })
+      )
+    }
+    info('Install dependencies')
+    await Promise.all(installs)
+    info(`Project ${props.name} created ! `)
   }
 }
 export default command
