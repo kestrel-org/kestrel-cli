@@ -1,0 +1,130 @@
+const express = require('express');
+const router = express.Router();
+const models = require('<%= props.path_to_model %>');
+
+/**
+ * @typedef <%= props.model_def %>
+<% for(let property of props.model_properties){  -%>
+ * @property {<%= property.type %>} <%= property.fieldName %>.required
+<%} -%>
+ */
+
+/**
+ * @route GET /<%= props.path %>
+ * @summary Retourne la liste de <%= props.model %>
+ * @group <%= props.path %>
+ * @returns {Array.<<%= props.model_def %>>} 200 - ok
+ * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ */
+router.get('/', async function (req, res, next) {
+  try {
+    const <%= props.model %>= await models['<%= props.model %>'].findAll();
+    res.status(200).send({
+      <%= props.model %>
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+/**
+ * @route POST /<%= props.path %>
+ * @summary Créer un objet de <%= props.model %>
+ * @group <%= props.path %>
+ * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - le nouvel objet <%= props.model_def %>
+ * @returns {<%= props.model_def %>} 200 - L'objet créé
+ * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ */
+router.post('/', async function (req, res, next) {
+  try {
+    const <%= props.model_single %> = await models['<%= props.model %>'].create(req.body);
+    res.status(200).send({
+      <%= props.model_single %>
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+/**
+ * @route PUT /<%= props.path %>
+ * @summary Modifie un objet <%= props.model %>
+ * @group <%= props.path %>
+ * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - l'objet <%= props.model %> modifié
+ * @returns {<%= props.model_def %>} 200 - L'objet <%= props.model %> modifié
+ * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ */
+router.put('/', async function (req, res, next) {
+  try {
+    // Separate id from data
+    const { <%= props.model_id %>: idObject, ...objectData } = req.body;
+    if (!idObject) {
+      res.status(400).send({
+        error: "Veuillez renseigner un id"
+      });
+    } else {
+      await models['<%= props.model %>'].update(objectData, { where: { <%= props.model_id %>: idObject } });
+      const <%= props.model_single %> = await models['<%= props.model %>'].findByPk(idObject);
+      res.status(200).send({
+        <%= props.model_single %>
+      });
+    }
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+/**
+ * @route DELETE /<%= props.path %>
+ * @summary Supprime l'objet <%= props.model %> dont l'id est fourni en paramètre
+ * @group <%= props.path %>
+ * @param {integer} <%= props.model_id %>.query.required - l'identifiant de l'objet <%= props.model %> - eg: 1
+ * @returns {object} 200 - OK
+ * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ */
+router.delete('/', async function (req, res, next) {
+  try {
+    await models['<%= props.model %>'].destroy({
+      where: {
+        <%= props.model_id %>: req.query.<%= props.model_id %>
+      }
+    })
+    res.status(200).send({
+      msg: 'ok'
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+/**
+ * @route GET /<%= props.path %>/{id}
+ * @summary Retourne l'objet <%= props.model %> dont l'id est fourni en paramètre
+ * @group <%= props.path %>
+ * @param {integer} <%= props.model_id %>.path.required - l'identifiant de l'objet <%= props.model %> - eg: 1
+ * @returns {<%= props.model_def %>} 200 - L'objet <%= props.model %>
+ * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ */
+router.get('/:id', async function (req, res, next) {
+  try {
+    const <%= props.model_single %> = await models['<%= props.model %>'].findByPk(req.params.<%= props.model_id %>);
+    res.status(200).send({
+      <%= props.model_single %>
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+
+module.exports =  router;

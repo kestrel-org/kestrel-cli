@@ -1,0 +1,24 @@
+const back_files = {
+    toTransform: [{
+            path: 'angular-node/backend/',
+            part: 'backend/',
+            filename: 'package.json',
+            convert: true,
+            createPath: '',
+            replace: [{
+                this: "backend",
+                by: "<%= props.bname || 'backend' %>"
+            }]
+        },
+        {
+            path: 'new/',
+            part: '',
+            filename: 'kli-cli.json',
+            createPath: '',
+            convert: false
+        }
+    ]
+}
+
+
+module.exports = back_files
