@@ -2,7 +2,6 @@ const lookUpDef = require('../utils/findProjectDef')
 const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes} =  require('../assets/addRoute/functions')
 const path = require('path')
 const util = require('util')
-require('dotenv').config();
 
 const command = {
   name: 'addRoute',
@@ -17,6 +16,7 @@ const command = {
       template : {generate}
     } = toolbox
 
+    // Check if current directory is in a kli-cli project
     const project_def = lookUpDef(cwd())
 
     if (project_def === null) {
@@ -25,6 +25,7 @@ const command = {
       return undefined;
     }
 
+    // Get the project defintion as json
     const def_content = read(project_def,"json")
 
     const pattern = /^([-_A-z]+\/)*[-_A-z]+$/g
@@ -39,7 +40,7 @@ const command = {
     }
 
     let router_name = parameters.first;
-    
+    // Sanity check
     if(parameters.first){
       if(router_name.length < 3){
         error('The name of the router must be longer than 3 caracters.')
@@ -53,11 +54,12 @@ const command = {
         router_name = await prompts.ask("Name of the router ?","example/my-router")
       } while (!isFilePath(router_name));
     }
+
+    // All paths to needed files such as the project routes folder
+
     const src = path.join(path.dirname(project_def),def_content.backend_path,"src")
     const routes_folder = path.join(src,"routes")
     const models_folder = path.join(src,"models")
-
-    // All paths to needed files such as the template for the routers
 
     const routes = require(path.join(routes_folder,"routes"))
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
@@ -76,7 +78,7 @@ const command = {
       }
     }
     
-     // Get all models to prompt the user with them
+     // Get all models to prompt the user with
 
     let models = [{
       title: "Aucun",
@@ -88,7 +90,7 @@ const command = {
 
     const responses = await prompts.any(getPrompts(router_name, models));
 
-    // Build folder path if it does not exist
+     // Build router from template
 
     const path_to_model = path.relative(router_file_path,models_folder);
 
@@ -100,7 +102,7 @@ const command = {
       props: props,
     })
 
-    //  Read the right template file if the user has selected a model or not
+    //  Modify routes.js file
 
     delete responses.model;
 

@@ -57,7 +57,7 @@ function getPrompts(router_name, models) {
     return questions;
 }
 
-// Returns a completed template to create the router
+// Returns the properties needed to populate the template
 
 function buildTemplateProperties(model, path, path_to_model, database) {
 
@@ -103,6 +103,8 @@ function buildTemplateProperties(model, path, path_to_model, database) {
 
     return props;
 }
+
+// Update or create routes
 
 function updateRoutes(routes,router_name,responses){
     let update;
