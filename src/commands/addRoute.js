@@ -1,4 +1,3 @@
-const lookUpDef = require('../utils/findProjectDef') 
 const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes} =  require('../assets/addRoute/functions')
 const path = require('path')
 const util = require('util')
@@ -6,27 +5,19 @@ const util = require('util')
 const command = {
   name: 'addRoute',
   alias:['addR','addr','ar'],
+  scope : "in",
   description : "Generate a new router",
   run: async toolbox => {
     const {
       parameters,
       print: { error, info},
-      filesystem: { cwd, read, exists, separator, write },
+      filesystem: { read, exists, separator, write },
       prompts,
       template : {generate}
     } = toolbox
 
-    // Check if current directory is in a kli-cli project
-    const project_def = lookUpDef(cwd())
-
-    if (project_def === null) {
-      error('No project definition found !')
-      error('The addRoute command must be run inside a kli-cli project')
-      return undefined;
-    }
-
     // Get the project defintion as json
-    const def_content = read(project_def,"json")
+    const def_content = read(toolbox.project_def,"json")
 
     const pattern = /^([-_A-z]+\/)*[-_A-z]+$/g
 

@@ -5,9 +5,7 @@ const main_files = require('../assets/main_files')
 const command = {
   name: 'new',
   alias: ['n'],
-  help: {
-
-  },
+  scope : "out",
   description: "Create new project",
   run: async toolbox => {
     const {

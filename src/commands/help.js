@@ -1,6 +1,7 @@
 const command = {
   name: 'help',
   alias:['h'],
+  scope : "all",
   dashed : true,
   hidden : true,
   description : "Display a list of available commands.",
