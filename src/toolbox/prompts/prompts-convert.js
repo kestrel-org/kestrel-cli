@@ -41,10 +41,31 @@ const ask = async (message, initial = "exemple") => {
   )
   return response
 }
+const select = async (message,choices, initial = 0,convert=false) => {
+  if(convert){
+    choices = choices.map(choice =>{
+      return {title : choice,value : choice}
+    })
+  }
+  const { response } = await getPrompts()({
+    type: 'select',
+    name: 'response',
+    message: message,
+    choices: choices,
+    initial: initial
+  },
+    {
+      onCancel: cancelProcess
+    }
+  )
+  return response
+}
+
 
 const prompt = {
   confirm,
   ask,
+  select,
   any: async questions => {
     return getPrompts()(questions,{onCancel: cancelProcess})
   }

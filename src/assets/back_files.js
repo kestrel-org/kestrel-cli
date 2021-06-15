@@ -9,13 +9,6 @@ const back_files = {
                 this: "backend",
                 by: "<%= props.bname || 'backend' %>"
             }]
-        },
-        {
-            path: 'new/',
-            part: '',
-            filename: 'kli-cli.json',
-            createPath: '',
-            convert: false
         }
     ]
 }

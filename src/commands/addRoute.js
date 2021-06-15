@@ -4,20 +4,21 @@ const util = require('util')
 
 const command = {
   name: 'addRoute',
-  alias:['addR','addr','ar'],
+  alias:['addR'],
   scope : "in",
   description : "Generate a new router",
   run: async toolbox => {
     const {
       parameters,
-      print: { error, info},
-      filesystem: { read, exists, separator, write },
+      logColors : {info,error,chalk},
+      filesystem: { read, exists, separator, writeAsync },
       prompts,
+      project_def,
       template : {generate}
     } = toolbox
-
+  
     // Get the project defintion as json
-    const def_content = read(toolbox.project_def,"json")
+    const def_content = read(project_def,"json")
 
     const pattern = /^([-_A-z]+\/)*[-_A-z]+$/g
 
@@ -32,7 +33,7 @@ const command = {
 
     let router_name = parameters.first;
     // Sanity check
-    if(parameters.first){
+    if(router_name){
       if(router_name.length < 3){
         error('The name of the router must be longer than 3 caracters.')
         error('Example: kc addRoute example/my-router')
@@ -48,7 +49,7 @@ const command = {
 
     // All paths to needed files such as the project routes folder
 
-    const src = path.join(path.dirname(project_def),def_content.backend_path,"src")
+    const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src")
     const routes_folder = path.join(src,"routes")
     const models_folder = path.join(src,"models")
 
@@ -56,7 +57,7 @@ const command = {
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
     const router_file = router_name.split(separator).pop()
   
-    require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.backend_path,".env") })
+    require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.projects.backend_path,".env") })
     const database = require(path.join(models_folder,"index"));
   
     // Check if router already exist
@@ -69,7 +70,7 @@ const command = {
       }
     }
     
-     // Get all models to prompt the user with
+    // Get all models to prompt the user with
 
     let models = [{
       title: "Aucun",
@@ -81,17 +82,18 @@ const command = {
 
     const responses = await prompts.any(getPrompts(router_name, models));
 
-     // Build router from template
+    // Build router from template
 
     const path_to_model = path.relative(router_file_path,models_folder);
 
     const props = buildTemplateProperties(responses.model, responses.path, path_to_model, database)
-
+    toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
     await generate({
       template: `addRoute/${responses.model ? "crud" : "example"}.ejs`,
       target: `${router_file_path}`,
       props: props,
     })
+    toolbox.loader.succeed()
 
     //  Modify routes.js file
 
@@ -99,10 +101,14 @@ const command = {
 
     const {new_routes,update} = updateRoutes(routes,router_name,responses)
 
-    write(path.join(routes_folder,"routes.js"),"module.exports = " + util.inspect(new_routes))
-
-    info(`Router ${update ? "updated" : "created"} : ${router_name}.js`)
-
+    toolbox.loader = info(chalk.blue.bold('Adding router to the routes'),true)
+    await writeAsync(path.join(routes_folder,"routes.js"),"module.exports = " + util.inspect(new_routes))
+    toolbox.loader.succeed()
+    
+    info(chalk.blue.bold(`Router ${update ? "updated" : "created"} : `) + chalk.white.bold(`${router_name}.js`));
+    
+    
+    
   }
 }
 

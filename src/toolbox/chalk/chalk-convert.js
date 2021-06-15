@@ -1,5 +1,6 @@
 
 let chalk = null
+let ora = null
 function getChalk() {
   if (chalk) return chalk
 
@@ -8,6 +9,31 @@ function getChalk() {
 
   return chalk
 }
-const logColors = getChalk
+function getOra() {
+  if (ora) return ora
 
-module.exports = logColors
+  const Ora = require('ora');
+  ora = Ora;
+
+  return ora
+}
+
+const oras = getOra()
+const chalks = getChalk()
+
+function info(message,loader = false){
+  if(loader){
+    return oras({prefixText:chalks.blue.bold(message)}).start()
+  }else{
+    return console.log(chalks.blue.bold(message))
+  }
+}
+function error(message){
+  console.log(chalks.red.bold(message))
+}
+
+module.exports = {
+  chalk : chalks,
+  info,
+  error
+}

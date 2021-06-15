@@ -1,23 +1,13 @@
-# kc CLI
+# kli-cli
 
-A CLI for kc.
+A CLI for angular-node template.
 
-## Customizing your CLI
+# Test the CLI
 
-Check out the documentation at https://github.com/infinitered/gluegun/tree/master/docs.
-
-## Publishing to NPM
-
-To package your CLI up for NPM, do this:
-
-```shell
-$ npm login
-$ npm whoami
-$ npm lint
-$ npm test
-(if typescript, run `npm run build` here)
-$ npm publish
-```
+* cd into cli folder
+* npm i
+* npm link
+* run command with kc prefix
 
 # License
 
