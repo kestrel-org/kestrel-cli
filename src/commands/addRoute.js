@@ -1,18 +1,19 @@
 const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes} =  require('../assets/addRoute/functions')
-const path = require('path')
 const util = require('util')
 
 const command = {
   name: 'addRoute',
-  alias:['addR'],
+  alias:['addr'],
   scope : "in",
+  needs : ["backend"],
   description : "Generate a new router",
   run: async toolbox => {
     const {
       parameters,
-      logColors : {info,error,chalk},
+      prints : {info,error,chalk},
       filesystem: { read, exists, separator, writeAsync },
       prompts,
+      path,
       project_def,
       template : {generate}
     } = toolbox
@@ -84,7 +85,7 @@ const command = {
 
     // Build router from template
 
-    const path_to_model = path.relative(router_file_path,models_folder);
+    const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");
 
     const props = buildTemplateProperties(responses.model, responses.path, path_to_model, database)
     toolbox.loader = info(chalk.blue.bold('Generating router file'),true)

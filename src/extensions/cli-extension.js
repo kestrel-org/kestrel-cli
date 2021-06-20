@@ -1,9 +1,11 @@
-const prompt = require('../toolbox/prompts/prompts-convert')
-const logColors  = require('../toolbox/chalk/chalk-convert')
+const prompt = require('./override/prompt')
+const print  = require('./override/print')
+const path = require('path')
 
 module.exports = toolbox => {
   toolbox.prompts = prompt;
-  toolbox.logColors = logColors;
+  toolbox.prints = print;
+  toolbox.path = path;
   toolbox.cHelp = () => {
     toolbox.logColors.info('called cHelp extension')
   }

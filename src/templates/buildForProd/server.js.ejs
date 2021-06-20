@@ -1,0 +1,86 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('./app');
+const debug = require('debug');
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+
+/**
+ * Create HTTP server.
+ */
+
+const httpServer = http.createServer(function (req, res) {
+  res.writeHead(307, { "Location": "https://" + req.headers['host'] + req.url });
+  res.end();
+});
+
+
+const privateKey = fs.readFileSync(__dirname + '/../../sslcert/<%= props.sslkey %>', 'utf8');
+const certificate = fs.readFileSync(__dirname + '/../../sslcert/<%= props.sslcrt %>', 'utf8');
+
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
+
+const httpsServer = https.createServer(credentials, app);
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+httpServer.listen(80, function () {
+  debug('Express server listening on port 80');
+});
+httpServer.on('error', onError);
+httpServer.on('listening', onListening);
+
+httpsServer.listen(443, function () {
+  debug('Express server listening on port 443');
+});
+httpsServer.on('error', onError);
+httpsServer.on('listening', onListening);
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = '443';
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  const addr = httpServer.address();
+  const bind = typeof addr === 'string' ?
+    'pipe ' + addr :
+    'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

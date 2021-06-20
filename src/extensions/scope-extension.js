@@ -1,14 +1,14 @@
 const path = require('path')
-const lookUpDef = require('../utils/findProjectDef') 
+const lookUpDef = require('./utils/findProjectDef') 
 module.exports = toolbox => {
     const {
-        logColors : {error},
+        prints : {error,log},
         filesystem: { cwd, exists, read },
     } = toolbox
 
     const commandPath = toolbox.command.commandPath[0] == "kc" ? "help" : toolbox.command.commandPath[0]
     const command_name = toolbox.command.name
-    const command =require(path.join('../commands',commandPath))
+    const command = require(path.join('../commands',commandPath))
 
     // Check if current directory is in a kli-cli project
 
@@ -20,18 +20,29 @@ module.exports = toolbox => {
             error(`The '${command_name}' command must be run inside a kli-cli project`)
             return process.exit(0);
         }
+        
         // Get the project defintion as json
         const def_content = read(project_def,"json")
         const root_dir = path.dirname(project_def)
-        if(def_content.backend_path){
-            if(!exists(path.join(root_dir,def_content.backend_path))){
-                error(`Cannot find directory ' ${def_content.backend_path} ', did you change its name, if so update in the kli-cli.json file`)
+        
+        if(command.needs && command.needs.length<=2){
+            for(let need of command.needs){
+                if(!def_content.projects.hasOwnProperty(`${need}_path`)){
+                    error(`Missing a ${need} project !`)
+                    return process.exit(0);
+                }
+            }
+        }
+        
+        if(def_content.projects.hasOwnProperty('backend_path')){
+            if(!exists(path.join(root_dir,def_content.projects.backend_path))){
+                error(`Cannot find directory ' ${def_content.projects.backend_path} ', did you change its name, if so update it in the kli-cli.json file`)
                 return process.exit(0);
             }
         }
-        if(def_content.frontend_path){
-            if(!exists(path.join(root_dir,def_content.frontend_path))){
-                error(`Cannot find directory ' ${def_content.frontend_path} ', did you change its name, if so update in the kli-cli.json file`)
+        if(def_content.projects.hasOwnProperty('frontend_path')){
+            if(!exists(path.join(root_dir,def_content.projects.frontend_path))){
+                error(`Cannot find directory ' ${def_content.projects.frontend_path} ', did you change its name, if so update it in the kli-cli.json file`)
                 return process.exit(0);
             }
         }

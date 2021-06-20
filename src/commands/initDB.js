@@ -1,19 +1,19 @@
 const path = require('path')
 const { inherits } = require('util')
 const command = {
-    name: 'initDB',
-    alias:['iDB'],
+    name: 'initdb',
+    alias:['idb'],
     scope : "in",
+    needs : ["backend"],
     description : "Init database with fake data.",
     run: async toolbox => {
       const {
         project_def,
         parameters,
-        prompts,
         filesystem : {read},
         strings : {upperCase,lowerCase},
-        system,
-        logColors : {info,error,chalk},
+        system: {run},
+        prints : {info,error,log},
       } = toolbox
     
       // Get the project defintion as json
@@ -47,44 +47,46 @@ const command = {
 
       env = lowerCase(env)
       
-      toolbox.loader = info('Database Initialization \n',true)
-      await Promise.all([system.spawn(`cd ${backend_path}`,{ 
-        shell: true
-      })])
-      toolbox.loader.succeed()
-
+      info('---- Database Initialization ----')
+      
+      
       toolbox.loader = info('Database removal ',true)
-      await Promise.all([system.spawn(`npx sequelize-cli db:drop --env ${env}`,{ 
-        shell: true
-      })])
+      let db_removal = await run(`npx sequelize-cli db:drop --env ${env}`,{ 
+        cwd: backend_path
+      })
       toolbox.loader.succeed()
+      log(db_removal);
 
       toolbox.loader = info('Database generation ',true)
-      await Promise.all([system.spawn(`npx sequelize-cli db:create --env ${env}`,{ 
-        shell: true
-      })])
+      let db_gen = await run(`npx sequelize-cli db:create --env ${env}`,{ 
+        cwd: backend_path
+      })
       toolbox.loader.succeed()
+      log(db_gen);
 
       toolbox.loader = info('Tables generation ',true)
-      await Promise.all([system.spawn(`npx sequelize-cli db:migrate --env ${env}`,{ 
-        shell: true
-      })])
+      let tables_gen = await run(`npx sequelize-cli db:migrate --env ${env}`,{ 
+        cwd: backend_path
+      })
       toolbox.loader.succeed()
+      log(tables_gen);
 
       toolbox.loader = info('Models generation ',true)
-      await Promise.all([system.spawn(`npm run generate-models -- ${process.env[env_vars[0]]} ${process.env[env_vars[1]]} ${process.env[env_vars[2]]}`,{ 
-        shell: true
-      })])
+      let models_gen = await run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta"`,{ 
+        cwd: backend_path
+      })
       toolbox.loader.succeed()
+      log(models_gen);
 
       toolbox.loader = info('Data insertion ',true)
-      await Promise.all([system.spawn(`npx sequelize-cli db:seed:all --env ${env}`,{ 
-        shell: true
-      })])
+      let data_gen = await run(`npx sequelize-cli db:seed:all --env ${env}`,{ 
+        cwd: backend_path
+      })
       toolbox.loader.succeed()
+      log(data_gen);
 
       info('Database initialized !')
-      
+
     }
   }
   

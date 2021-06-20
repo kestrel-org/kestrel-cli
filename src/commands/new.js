@@ -10,11 +10,11 @@ const command = {
   run: async toolbox => {
     const {
       parameters,
-      logColors : {info,error,chalk},
+      prints : {info,error,chalk},
       strings: { kebabCase },
       filesystem: { exists, removeAsync, copyAsync, cwd, separator },
       prompts,
-      system,
+      system : {spawn},
       template: { generate }
     } = toolbox
 
@@ -99,16 +99,16 @@ const command = {
       toolbox.loader = info('Install dependencies',true)
       if (single) {
         installs.push(
-          system.spawn(`cd ${props.name} && npm install --silent --quiet --progress=false`, { 
+          spawn(`cd ${props.name} && npm install --silent --quiet --progress=false`, { 
             shell: true
           })
         )
       } else {
         installs.push(
-          system.spawn(`cd ${props.name}/frontend && npm install --silent --quiet --progress=false`,{ 
+          spawn(`cd ${props.name}/frontend && npm install --silent --quiet --progress=false`,{ 
             shell: true
           }),
-          system.spawn(`cd ${props.name}/backend && npm install --silent --quiet --progress=false`,{ 
+          spawn(`cd ${props.name}/backend && npm install --silent --quiet --progress=false`,{ 
             shell: true
           })
         )

@@ -13,11 +13,7 @@ implements sequelize commands :
  - npx sequelize-cli migration:generate
 removeRouter (maybe)
 update (maybe not)
-generateFrontDoc : 
-"build:doc": "npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend",
-    
-serveFrontDoc :
-"serve:doc": "npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend -s"
+
 
 kc test
 kc start
