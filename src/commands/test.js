@@ -2,10 +2,9 @@ const command = {
     name: 'test',
     alias:[],
     scope : "in",
-    description : "Build project for production",
+    description : "Run tests specified in the project",
     run: async toolbox => {
-      const { printHelp } = toolbox.print
-      printHelp(toolbox)
+     
     }
   }
   

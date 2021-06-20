@@ -4,8 +4,7 @@ const command = {
   scope : "in",
   description : "Generate commands based on sequelize instructions",
   run: async toolbox => {
-    const { printHelp } = toolbox.print
-    printHelp(toolbox)
+    
   }
 }
 
