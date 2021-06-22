@@ -11,7 +11,7 @@ const command = {
         filesystem : {read},
         system : {run,spawn},
         path,
-        prints : {info,error,chalk,log},
+        prints : {info,error,log},
       } = toolbox
 
       // Get the project defintion as json

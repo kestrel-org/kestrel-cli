@@ -15,7 +15,6 @@ const command = {
       filesystem: { exists, removeAsync, copyAsync, cwd, separator },
       prompts,
       system : {spawn},
-      path,
       template: { generate }
     } = toolbox
 

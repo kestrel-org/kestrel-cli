@@ -8,7 +8,7 @@ const command = {
       const {
         project_def,
         filesystem : {read, exists},
-        prints : {info,error,chalk,log},
+        prints : {info,error,chalk},
         prompts,
         system : {run}
       } = toolbox

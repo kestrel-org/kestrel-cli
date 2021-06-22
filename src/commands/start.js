@@ -11,7 +11,6 @@ const command = {
         filesystem : {read},
         path,
         project_def,
-        prints : {log,info}
       } = toolbox
 
       const def_content = read(project_def,"json")
