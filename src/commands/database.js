@@ -22,12 +22,20 @@ const command = {
 
     let sqlz_cmd;
     let command_name;
-    if(options.gm){
+    if(first == "generate:models" || options.p == "generate:models" || options.t == "generate:models"){
 
-      let env_arg = first || "DEV";
+      let env_arg = "dev"
 
-      if(options.gm && typeof options.gm != "boolean"){
-        env_arg=options.gm
+      if(Object.keys(options).length>1){
+        error("Please use only one option to set the environment !")
+        process.exit(0)
+      }
+
+      if(options.p){
+        env_arg = "prod"
+      }
+      if(options.t){
+        env_arg = "test"
       }
 
       require('dotenv').config({ path: path.join(backend_path,".env") })
@@ -42,7 +50,7 @@ const command = {
         if(!available_envs.includes(env)){
           error('Specified environment does not exist')
           error(`Available environments : ${available_envs.join(",")}`)
-          return undefined
+          process.exit(0)
         }
       }
 
@@ -61,7 +69,8 @@ const command = {
     }else{
       let command = first;
       if(!command){
-        error("Please specify a command to run : ex - kc db db:migrate")
+        error("Please specify a command to run : ex - kc db db:migrate --options")
+        process.exit(0)
       }
       let options_str = [];
       for(let name in options){
