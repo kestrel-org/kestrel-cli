@@ -47,9 +47,10 @@ const command = {
               run(`npm install --silent`,{ 
                 cwd: directories[dir]
               }).catch(err=>{
+                toolbox.loader.fail()
                 error(err.stdout)
                 error(err.stderr)
-                return undefined;
+                process.exit(0)
               })
           )
         }

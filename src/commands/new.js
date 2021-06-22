@@ -15,6 +15,7 @@ const command = {
       filesystem: { exists, removeAsync, copyAsync, cwd, separator },
       prompts,
       system : {spawn},
+      path,
       template: { generate }
     } = toolbox
 
@@ -73,10 +74,13 @@ const command = {
         await removeAsync(props.name)
         toolbox.loader.succeed()
       }
-      toolbox.loader = info('Copy directory',true)
+      toolbox.loader = info('Copying directory',true)
       await copyAsync(__dirname + '/../templates/angular-node/' + toCreate, cwd() + separator + props.name, {
         overwrite: true,
-        matching: '!*.ejs'
+        matching: [
+          './!(.github|ROADMAP.md|CHANGELOG.md)',
+          './!(.github)/**/!(*.ejs)'
+        ]
       })
       toolbox.loader.succeed()
 
@@ -96,7 +100,7 @@ const command = {
       toolbox.loader.succeed()
 
       let installs = [];
-      toolbox.loader = info('Install dependencies',true)
+      toolbox.loader = info('Installing dependencies',true)
       if (single) {
         installs.push(
           spawn(`cd ${props.name} && npm install --silent --quiet --progress=false`, { 

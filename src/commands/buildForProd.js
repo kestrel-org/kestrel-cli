@@ -64,14 +64,14 @@ const command = {
           matching : '*.key'
         })
         if(key_certificate.length!=1){
-          error("Cannot find .key file, did you put it in the sslcert folder ?")
+          error("Found zero or multiple .key files, did you put it in the sslcert folder ?")
           process.exit(0)
         }
         let crt_certificate = await findAsync(path.join(root_dir,"sslcert"),{
           matching : '*.crt'
         })
         if(crt_certificate.length!=1){
-          error("Cannot find .crt file, did you put it in the sslcert folder ?")
+          error("Found zero or multiple .crt files, did you put it in the sslcert folder ?")
           process.exit(0)
         }
 
@@ -84,9 +84,8 @@ const command = {
         await copyAsync(backend_path, build_dir, {
           overwrite: true,
           matching: [
-            './!(node_modules)/**',
-            './*.*',
-            '!server.js'
+            './!(node_modules)',
+            './!(node_modules)/**/!(server.js)'
           ]
         })
         toolbox.loader.succeed()
@@ -94,9 +93,10 @@ const command = {
         await run(`npm install --silent`,{ 
           cwd: build_dir
         }).catch(err=>{
+          toolbox.loader.fail()
           error(err.stdout)
           error(err.stderr)
-          return undefined;
+          process.exit(0);
         })
         toolbox.loader.succeed()
 
@@ -111,6 +111,7 @@ const command = {
           await run(`npm install --silent`,{ 
             cwd: frontend_path
           }).catch(err=>{
+            toolbox.loader.fail()
             error(err.stdout)
             error(err.stderr)
             process.exit(0);
@@ -118,7 +119,7 @@ const command = {
           toolbox.loader.succeed()
         }
         toolbox.loader = info('Building frontend to dist/src/public ',true)
-        await run(`ng build --prod --output-path=${path.relative(frontend_path,path.join(build_dir,"src/public"))}`,{ 
+        await run(`ng build --configuration=production --output-path=${path.relative(frontend_path,path.join(build_dir,"src/public"))}`,{ 
           cwd: frontend_path
         }).catch(err=>{
           toolbox.loader.fail()
