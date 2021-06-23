@@ -40,7 +40,7 @@ const command = {
         }
         let url;
         let urls = []
-        prompts.inject(['momo.fr','jaqcuie.com','roberto.lourd','franklin.caca','florent.groszizi','192.168.0.6','','kaka.rc']);
+        
         do{
           url = await prompts.ask("Enter domain names or IPs (empty to stop)",validateAddress);
           if(url.length>0)

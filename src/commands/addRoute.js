@@ -10,7 +10,7 @@ const command = {
   run: async toolbox => {
     const {
       parameters,
-      prints : {info,error,chalk},
+      prints : {info,error,chalk,log},
       filesystem: { read, exists, separator, writeAsync },
       prompts,
       path,
@@ -24,7 +24,7 @@ const command = {
     const pattern = /^([-_A-z]+\/)*[-_A-z]+$/g
 
     function isFilePath(path){
-      const is_file_path = pattern.test(path);
+      let is_file_path = pattern.test(path);
       if(!is_file_path){
         error(`${router_name} is not a valid name. Use letters case, slashes, dashes and underscore only.`)
         error(`Example: kc addRoute example/my-router`)
