@@ -21,17 +21,14 @@ const command = {
     // Get the project defintion as json
     const def_content = read(project_def,"json")
 
-    const pattern = /^([-_A-z]+\/)*[-_A-z]+$/g
+    const pattern = /^([-_A-z]+\/)*[-_A-z]{3,}$/g
 
     function isFilePath(path){
       let is_file_path = pattern.test(path);
       if(!is_file_path){
         error(`${router_name} is not a valid name. Use letters case, slashes, dashes and underscore only.`)
+        error("The name should also be more than 3 caracters long.")
         error(`Example: kc addRoute example/my-router`)
-      }
-      if(path.length<3){
-        error("Name of the router should be more than 3 carcaters long !")
-        is_file_path = false;
       }
       return is_file_path;
     }
@@ -39,19 +36,15 @@ const command = {
     let router_name = parameters.first;
     // Sanity check
     if(router_name){
-      if(router_name.length < 3){
-        error('The name of the router must be longer than 3 caracters.')
-        error('Example: kc addRoute example/my-router')
-        return undefined
-      }else if (!isFilePath(router_name)) {
+      if(!isFilePath(router_name)){
         return undefined
       }
     }else{
       do {
-        router_name = await prompts.ask("Name of the router ?","example/my-router")
+        router_name = await prompts.ask("Name of the router ?",null,"example/my-router")
       } while (!isFilePath(router_name));
     }
-
+    
     // All paths to needed files such as the project routes folder
 
     const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src")
