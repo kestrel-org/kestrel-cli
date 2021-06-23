@@ -136,6 +136,8 @@ const command = {
         },
       })
       toolbox.loader.succeed()
+
+      info('Build finished !')
     }
   }
   
