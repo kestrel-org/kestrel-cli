@@ -77,7 +77,7 @@ const command = {
       await copyAsync(__dirname + '/../templates/angular-node/' + toCreate, cwd() + separator + props.name, {
         overwrite: true,
         matching: [
-          './!(.github|ROADMAP.md|CHANGELOG.md)',
+          './!(.github|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md)',
           './!(.github)/**/!(*.ejs)'
         ]
       })

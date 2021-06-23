@@ -29,6 +29,10 @@ const command = {
         error(`${router_name} is not a valid name. Use letters case, slashes, dashes and underscore only.`)
         error(`Example: kc addRoute example/my-router`)
       }
+      if(path.length<3){
+        error("Name of the router should be more than 3 carcaters long !")
+        is_file_path = false;
+      }
       return is_file_path;
     }
 
