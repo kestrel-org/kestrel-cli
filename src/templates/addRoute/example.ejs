@@ -4,21 +4,21 @@ const models = require('<%= props.path_to_model %>');
 
 /**
  * @typedef User
- * @property {integer} id.required - Identifiant - eg: 1
+ * @property {integer} id.required - ID - eg: 1
  * @property {string} login.required - Login - eg: Ivy234
  * @property {string} password.required - Password - eg: zbtLMEv8
  * @property {string} email.required - Email - eg: Ivy234@hotmail.com
- * @property {string} createdAt.required - Date de creation - eg: 2021-04-27T08:34:01.000Z
- * @property {string} updatedAt.required - Date de mise à jour - eg: 2021-04-27T08:34:01.000Z
+ * @property {string} createdAt.required - Creation date - eg: 2021-04-27T08:34:01.000Z
+ * @property {string} updatedAt.required - Update date - eg: 2021-04-27T08:34:01.000Z
  */
 
 /**
  * @route GET /<%= props.path %>
- * @summary Retourne la liste des utilisateurs
+ * @summary Return the users list
  * @group <%= props.path %>
- * @returns {Array.<User>} 200 - Liste des utilisateurs
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
- * @returns {Error}  401 - Erreur lors de l'authentification
+ * @returns {Array.<User>} 200 - Users list
+ * @returns {Error}  400 - Error in query syntax
+ * @returns {Error}  401 - Error during authentication
  */
 router.get('/', async function (req, res, next) {
   try {

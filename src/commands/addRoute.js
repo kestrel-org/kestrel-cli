@@ -71,7 +71,7 @@ const command = {
     // Get all models to prompt the user with
 
     let models = [{
-      title: "Aucun",
+      title: "None",
       value: false
     }]
     models = models.concat(getAllModels(database));

@@ -11,10 +11,10 @@ const models = require('<%= props.path_to_model %>');
 
 /**
  * @route GET /<%= props.path %>
- * @summary Retourne la liste de <%= props.model %>
+ * @summary Return the <%= props.model %> list 
  * @group <%= props.path %>
  * @returns {Array.<<%= props.model_def %>>} 200 - ok
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ * @returns {Error}  400 - Error in query syntax
  */
 router.get('/', async function (req, res, next) {
   try {
@@ -31,11 +31,11 @@ router.get('/', async function (req, res, next) {
 
 /**
  * @route POST /<%= props.path %>
- * @summary Créer un objet de <%= props.model %>
+ * @summary Create a <%= props.model_single %> object 
  * @group <%= props.path %>
- * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - le nouvel objet <%= props.model_def %>
- * @returns {<%= props.model_def %>} 200 - L'objet créé
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - The new <%= props.model_def %> object 
+ * @returns {<%= props.model_def %>} 200 - The created object
+ * @returns {Error}  400 - Error in query syntax
  */
 router.post('/', async function (req, res, next) {
   try {
@@ -52,11 +52,11 @@ router.post('/', async function (req, res, next) {
 
 /**
  * @route PUT /<%= props.path %>
- * @summary Modifie un objet <%= props.model %>
+ * @summary Modify a <%= props.model_single %> object 
  * @group <%= props.path %>
- * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - l'objet <%= props.model %> modifié
- * @returns {<%= props.model_def %>} 200 - L'objet <%= props.model %> modifié
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - The modified <%= props.model_single %> object  
+ * @returns {<%= props.model_def %>} 200 - The modified <%= props.model_single %> object
+ * @returns {Error}  400 - Error in query syntax
  */
 router.put('/', async function (req, res, next) {
   try {
@@ -64,7 +64,7 @@ router.put('/', async function (req, res, next) {
     const { <%= props.model_id %>: idObject, ...objectData } = req.body;
     if (!idObject) {
       res.status(400).send({
-        error: "Veuillez renseigner un id"
+        error: "Please provide an ID"
       });
     } else {
       await models['<%= props.model %>'].update(objectData, { where: { <%= props.model_id %>: idObject } });
@@ -82,11 +82,11 @@ router.put('/', async function (req, res, next) {
 
 /**
  * @route DELETE /<%= props.path %>
- * @summary Supprime l'objet <%= props.model %> dont l'id est fourni en paramètre
+ * @summary Delete the <%= props.model_single %> object whose ID is provided as a parameter
  * @group <%= props.path %>
- * @param {integer} <%= props.model_id %>.query.required - l'identifiant de l'objet <%= props.model %> - eg: 1
+ * @param {integer} <%= props.model_id %>.query.required - The ID of the <%= props.model_single %> object  - eg: 1
  * @returns {object} 200 - OK
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ * @returns {Error}  400 - Error in query syntax
  */
 router.delete('/', async function (req, res, next) {
   try {
@@ -107,11 +107,11 @@ router.delete('/', async function (req, res, next) {
 
 /**
  * @route GET /<%= props.path %>/{id}
- * @summary Retourne l'objet <%= props.model %> dont l'id est fourni en paramètre
+ * @summary Return the <%= props.model_single %> object whose ID is provided as a parameter
  * @group <%= props.path %>
- * @param {integer} <%= props.model_id %>.path.required - l'identifiant de l'objet <%= props.model %> - eg: 1
- * @returns {<%= props.model_def %>} 200 - L'objet <%= props.model %>
- * @returns {Error}  400 - Erreur dans la syntaxe de la requête
+ * @param {integer} <%= props.model_id %>.path.required - The ID of the <%= props.model_single %> object - eg: 1
+ * @returns {<%= props.model_def %>} 200 - The <%= props.model_single %> object
+ * @returns {Error}  400 - Error in query syntax
  */
 router.get('/:id', async function (req, res, next) {
   try {
