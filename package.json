@@ -9,7 +9,7 @@
   "scripts": {
     "format": "prettier --write **/*.{js,json} && standard --fix",
     "lint": "standard",
-    "test": "jest",
+    "test": "jest __tests__",
     "watch": "jest --watch",
     "snapupdate": "jest --updateSnapshot",
     "coverage": "jest --coverage"
