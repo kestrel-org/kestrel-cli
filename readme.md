@@ -1,13 +1,10 @@
 # kli-cli
 
-A CLI for angular-node template.
+A CLI for [angular-node template](https://github.com/template-angular-node/kli-cli).
 
-# Test the CLI
+# Documentation
 
-* cd into cli folder
-* npm i
-* npm link
-* run command with kc prefix
+We have a [gitbook](https://sflorent.gitbook.io/template-angular-node/commands).
 
 # License
 
