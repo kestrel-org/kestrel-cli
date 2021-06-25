@@ -1,6 +1,6 @@
 # kli-cli
 
-A CLI for [angular-node template](https://github.com/template-angular-node/kli-cli).
+A CLI for [angular-node template](https://github.com/template-angular-node/template-angular-node).
 
 # Documentation
 
