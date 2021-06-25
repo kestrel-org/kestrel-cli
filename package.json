@@ -20,6 +20,10 @@
     "docs",
     "bin"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/template-angular-node/kli-cli.git"
+  },
   "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.2",
