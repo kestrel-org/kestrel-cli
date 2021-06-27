@@ -72,7 +72,7 @@ const command = {
       log(tables_gen);
 
       toolbox.loader = info('Models generation ',true)
-      let models_gen = await run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta"`,{ 
+      let models_gen = await run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`,{ 
         cwd: backend_path
       })
       toolbox.loader.succeed()
