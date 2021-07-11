@@ -31,7 +31,7 @@ const command = {
         name: parameters.first,
         backend_path : "backend",
         frontend_path : "frontend",
-        kli_version : "1.0.6"
+        kli_version : "1.0.7"
       }
 
       let toCreate = ""
@@ -105,7 +105,7 @@ const command = {
       const cwf = path.join(cwd(),props.name)
       if (single) {
         installs.push(
-          run(`npm install --silent`,{ 
+          run(`npm install`,{ 
             cwd: cwf
           }).catch(err=>{
             toolbox.loader.fail()
@@ -117,7 +117,7 @@ const command = {
         )
       } else {
         installs.push(
-          run(`npm install --silent`,{ 
+          run(`npm install`,{ 
             cwd: path.join(cwf,"backend")
           }).catch(err=>{
             toolbox.loader.fail()
@@ -126,7 +126,7 @@ const command = {
             error(err.stderr)
             process.exit(0)
           }),
-          run(`npm install --silent`,{ 
+          run(`npm install`,{ 
             cwd: path.join(cwf,"frontend")
           }).catch(err=>{
             toolbox.loader.fail()
