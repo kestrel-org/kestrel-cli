@@ -1,6 +1,6 @@
 {
   "name": "kli-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "kc CLI",
   "bin": {
     "kc": "bin/kc"

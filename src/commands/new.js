@@ -29,7 +29,8 @@ const command = {
       const props = {
         name: parameters.first,
         backend_path : "backend",
-        frontend_path : "frontend"
+        frontend_path : "frontend",
+        kli_version : "1.0.4"
       }
 
       let toCreate = ""
