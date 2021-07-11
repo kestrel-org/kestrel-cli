@@ -14,7 +14,8 @@ const command = {
       strings: { kebabCase },
       filesystem: { exists, removeAsync, copyAsync, cwd, separator },
       prompts,
-      system : {spawn},
+      path,
+      system : {run},
       template: { generate }
     } = toolbox
 
@@ -101,19 +102,35 @@ const command = {
 
       let installs = [];
       toolbox.loader = info('Installing dependencies',true)
+      const cwf = path.join(cwd(),props.name)
       if (single) {
         installs.push(
-          spawn(`cd ${props.name} && npm install --silent --quiet --progress=false`, { 
-            shell: true
+          run(`npm install --silent`,{ 
+            cwd: cwf
+          }).catch(err=>{
+            toolbox.loader.fail()
+            error(err.stdout)
+            error(err.stderr)
+            process.exit(0)
           })
         )
       } else {
         installs.push(
-          spawn(`cd ${props.name}/frontend && npm install --silent --quiet --progress=false`,{ 
-            shell: true
+          run(`npm install --silent`,{ 
+            cwd: path.join(cwf,"backend")
+          }).catch(err=>{
+            toolbox.loader.fail()
+            error(err.stdout)
+            error(err.stderr)
+            process.exit(0)
           }),
-          spawn(`cd ${props.name}/backend && npm install --silent --quiet --progress=false`,{ 
-            shell: true
+          run(`npm install --silent`,{ 
+            cwd: path.join(cwf,"frontend")
+          }).catch(err=>{
+            toolbox.loader.fail()
+            error(err.stdout)
+            error(err.stderr)
+            process.exit(0)
           })
         )
       }
