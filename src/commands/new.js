@@ -109,6 +109,7 @@ const command = {
             cwd: cwf
           }).catch(err=>{
             toolbox.loader.fail()
+            error(err)
             error(err.stdout)
             error(err.stderr)
             process.exit(0)
@@ -120,6 +121,7 @@ const command = {
             cwd: path.join(cwf,"backend")
           }).catch(err=>{
             toolbox.loader.fail()
+            error(err)
             error(err.stdout)
             error(err.stderr)
             process.exit(0)
@@ -128,6 +130,7 @@ const command = {
             cwd: path.join(cwf,"frontend")
           }).catch(err=>{
             toolbox.loader.fail()
+            error(err)
             error(err.stdout)
             error(err.stderr)
             process.exit(0)
