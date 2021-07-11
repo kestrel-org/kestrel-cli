@@ -31,7 +31,7 @@ const command = {
         name: parameters.first,
         backend_path : "backend",
         frontend_path : "frontend",
-        kli_version : "1.0.4"
+        kli_version : "1.0.6"
       }
 
       let toCreate = ""
