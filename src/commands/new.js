@@ -31,7 +31,7 @@ const command = {
         name: parameters.first,
         backend_path : "backend",
         frontend_path : "frontend",
-        kli_version : "1.0.9"
+        kli_version : "1.0.10"
       }
 
       let toCreate = ""
@@ -80,8 +80,7 @@ const command = {
         overwrite: true,
         matching: [
           './!(.github|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md)',
-          './!(.github)/**/!(*.ejs)',
-          '.gitignore'
+          './!(.github)/**/!(*.ejs)'
         ]
       })
       toolbox.loader.succeed()
