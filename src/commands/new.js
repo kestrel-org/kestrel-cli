@@ -15,6 +15,7 @@ const command = {
       filesystem: { exists, removeAsync, copyAsync, cwd, separator },
       prompts,
       path,
+      meta : {version},
       system : {run},
       template: { generate }
     } = toolbox
@@ -31,7 +32,7 @@ const command = {
         name: parameters.first,
         backend_path : "backend",
         frontend_path : "frontend",
-        kli_version : "1.0.12"
+        kli_version : version()
       }
 
       let toCreate = ""
