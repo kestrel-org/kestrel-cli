@@ -106,14 +106,14 @@ router.delete('/', async function (req, res, next) {
 });
 
 /**
- * @route GET /<%= props.path %>/{id}
+ * @route GET /<%= props.path %>/{<%= props.model_id %>}
  * @summary Return the <%= props.model_single %> object whose ID is provided as a parameter
  * @group <%= props.path %>
  * @param {integer} <%= props.model_id %>.path.required - The ID of the <%= props.model_single %> object - eg: 1
  * @returns {<%= props.model_def %>} 200 - The <%= props.model_single %> object
  * @returns {Error}  400 - Error in query syntax
  */
-router.get('/:id', async function (req, res, next) {
+router.get('/:<%= props.model_id %>', async function (req, res, next) {
   try {
     const <%= props.model_single %> = await models['<%= props.model %>'].findByPk(req.params.<%= props.model_id %>);
     res.status(200).send({
