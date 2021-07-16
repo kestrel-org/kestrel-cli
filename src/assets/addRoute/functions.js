@@ -78,12 +78,16 @@ function buildTemplateProperties(model, path, path_to_model, database) {
     if (model) {
         const model_obj = getSequelizeModel(model,database);
         let attrs = model_obj['tableAttributes'];
+        let model_id = model_obj['primaryKeyAttribute'];
         let properties = [];
         let swagger_types = ["string", "integer"]
         for (let attr_name in attrs) {
             let type = strings.lowerCase(`${attrs[attr_name].type}`);
             if (!swagger_types.includes(type)) {
                 type = 'string'
+            }
+            if(attrs[attr_name].fieldName == model_id){
+                props.model_id_type = type
             }
             properties.push(
                 {
@@ -97,7 +101,7 @@ function buildTemplateProperties(model, path, path_to_model, database) {
         props.model = model;
         props.model_def = model_def;
         props.model_single = model_single;
-        props.model_id = model_obj['primaryKeyAttribute'];
+        props.model_id = model_id;
         props.model_properties = properties;
     }
 

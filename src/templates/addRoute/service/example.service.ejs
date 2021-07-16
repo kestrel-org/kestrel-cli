@@ -1,0 +1,21 @@
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { environment } from "<%= props.path_to_env %>";
+import { lastValueFrom } from "rxjs";
+@Injectable({
+  providedIn: "root",
+})
+export class <%= props.service_name %> {
+
+  BASEURL: string = environment.API_URL;
+
+  constructor(private http: HttpClient) {}
+
+  httpOptions = {
+    headers: new HttpHeaders({
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": environment.ORIGIN_URL,
+    }),
+    withCredentials: true,
+  };
+}

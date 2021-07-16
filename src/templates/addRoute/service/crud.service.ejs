@@ -1,0 +1,41 @@
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { environment } from "<%= props.path_to_env %>";
+import { lastValueFrom } from "rxjs";
+@Injectable({
+  providedIn: "root",
+})
+export class <%= props.service_name %> {
+
+  BASEURL: string = environment.API_URL;
+
+  constructor(private http: HttpClient) {}
+
+  httpOptions = {
+    headers: new HttpHeaders({
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": environment.ORIGIN_URL,
+    }),
+    withCredentials: true,
+  };
+
+  getUsers(): Promise<any> {
+    return lastValueFrom(this.http.get(this.BASEURL + "<%= props.path %>", this.httpOptions));
+  }
+
+  getUsersById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
+    return lastValueFrom(this.http.get(this.BASEURL + "<%= props.path %>/" + <%= props.model_id %>, this.httpOptions));
+  }
+
+  deleteUsersById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
+    return lastValueFrom(this.http.delete(this.BASEURL + "<%= props.path %>/" + <%= props.model_id %>, this.httpOptions));
+  }
+
+  postUsers(<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
+    return lastValueFrom(this.http.post(this.BASEURL + "<%= props.path %>", {<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %><%= i < arr.length-1 ? ', ' : '' %><%}) %>}, this.httpOptions));
+  }
+
+  putUsers(<% props.model_properties.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
+    return lastValueFrom(this.http.put(this.BASEURL + "<%= props.path %>", {<% props.model_properties.forEach(function(property, i, arr){ %><%= property.fieldName %><%= i < arr.length-1 ? ', ' : '' %><%}) %>}, this.httpOptions));
+  }
+}

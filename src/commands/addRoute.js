@@ -13,6 +13,7 @@ const command = {
       prints : {info,error,chalk,log},
       filesystem: { read, exists, separator, writeAsync },
       prompts,
+      strings : {upperFirst},
       path,
       project_def,
       template : {generate}
@@ -83,8 +84,10 @@ const command = {
     // Build router from template
 
     const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");
+   
 
     const props = buildTemplateProperties(responses.model, responses.path, path_to_model, database)
+
     toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
     await generate({
       template: `addRoute/${responses.model ? "crud" : "example"}.ejs`,
@@ -92,6 +95,48 @@ const command = {
       props: props,
     })
     toolbox.loader.succeed()
+
+    // TODO : refactor this shitty code
+    
+    if(def_content.projects.frontend_path){
+
+      const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path,"src")
+      const services_path = path.join(front_src,"app/services")
+      const service_name = path.basename(router_file)
+      const service_path = path.join(services_path,service_name,service_name)
+      let owf = true
+      if(exists(`${service_path}.service.ts`)){
+        error(`A service named ${service_name} already exists !`)
+        const overwrite_service = await prompts.confirm(`Overwrite ?`)
+        if(!overwrite_service)
+          owf = false
+      }
+      if(owf){
+        toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
+        const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
+
+        props.service_name = upperFirst(service_name)+"Service"
+        props.service_file_name = path.basename(`${service_path}.service.ts`).replace('.ts','')
+        props.model_properties_post = props.model_properties.filter(property => !properties_to_remove.includes(property.fieldName));
+        props.path_to_env = path.relative(path.dirname(`${service_path}.service.ts`),path.join(front_src,"environments/environment")).replace(/\\/g,"/")
+        props.model_id_type = ["integer"].includes(props.model_id_type) ? "number" : props.model_id_type
+
+        const service_files = ["service","service.spec"];
+        let generators = []
+        generators = service_files.reduce((res, file) => {
+          const generator = generate({
+            template: `addRoute/service/${responses.model ? "crud" : "example"}.${file}.ejs`,
+            target: `${service_path}.${file}.ts`,
+            props: props,
+          }).catch((err)=>{error(err);return undefined})
+          return res.concat(generator)
+        }, generators)
+        await Promise.all(generators)
+        toolbox.loader.succeed()
+      }
+    }
+    
+    
 
     //  Modify routes.js file
 
