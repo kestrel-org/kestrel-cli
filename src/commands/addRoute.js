@@ -11,7 +11,7 @@ const command = {
     const {
       parameters,
       prints : {info,error,chalk,log},
-      filesystem: { read, exists, separator, writeAsync },
+      filesystem: { read, exists, separator, writeAsync, findAsync },
       prompts,
       strings : {upperFirst},
       path,
@@ -100,39 +100,43 @@ const command = {
     
     if(def_content.projects.frontend_path){
 
-      const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path,"src")
-      const services_path = path.join(front_src,"app/services")
-      const service_name = path.basename(router_file)
-      const service_path = path.join(services_path,service_name,service_name)
-      let owf = true
-      if(exists(`${service_path}.service.ts`)){
-        error(`A service named ${service_name} already exists !`)
-        const overwrite_service = await prompts.confirm(`Overwrite ?`)
-        if(!overwrite_service)
-          owf = false
-      }
-      if(owf){
-        toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
-        const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
+      const create_service = await prompts.confirm(`Create the asociated service ?`)
+      if(create_service){
+        const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path,"src")
+        const services_path = path.join(front_src,"app/services")
+        const service_name = path.basename(router_file)
+        const service_path = path.join(services_path,service_name,service_name)
+        let owf = true
+        const service_found = await findAsync(services_path,{matching : [`${service_name}.service.ts`,`${service_name}.service.spec.ts`]})
+        if(service_found.length > 0){
+          error(`A service named ${service_name} already exists !`)
+          const overwrite_service = await prompts.confirm(`Overwrite ?`)
+          if(!overwrite_service)
+            owf = false
+        }
+        if(owf){
+          toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
+          const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
 
-        props.service_name = upperFirst(service_name)+"Service"
-        props.service_file_name = path.basename(`${service_path}.service.ts`).replace('.ts','')
-        props.model_properties_post = props.model_properties.filter(property => !properties_to_remove.includes(property.fieldName));
-        props.path_to_env = path.relative(path.dirname(`${service_path}.service.ts`),path.join(front_src,"environments/environment")).replace(/\\/g,"/")
-        props.model_id_type = ["integer"].includes(props.model_id_type) ? "number" : props.model_id_type
+          props.service_name = upperFirst(service_name)+"Service"
+          props.service_file_name = path.basename(`${service_path}.service.ts`).replace('.ts','')
+          props.model_properties_post = props.model_properties.filter(property => !properties_to_remove.includes(property.fieldName));
+          props.path_to_env = path.relative(path.dirname(`${service_path}.service.ts`),path.join(front_src,"environments/environment")).replace(/\\/g,"/")
+          props.model_id_type = ["integer"].includes(props.model_id_type) ? "number" : props.model_id_type
 
-        const service_files = ["service","service.spec"];
-        let generators = []
-        generators = service_files.reduce((res, file) => {
-          const generator = generate({
-            template: `addRoute/service/${responses.model ? "crud" : "example"}.${file}.ejs`,
-            target: `${service_path}.${file}.ts`,
-            props: props,
-          }).catch((err)=>{error(err);return undefined})
-          return res.concat(generator)
-        }, generators)
-        await Promise.all(generators)
-        toolbox.loader.succeed()
+          const service_files = ["service","service.spec"];
+          let generators = []
+          generators = service_files.reduce((res, file) => {
+            const generator = generate({
+              template: `addRoute/service/${responses.model ? "crud" : "example"}.${file}.ejs`,
+              target: `${service_path}.${file}.ts`,
+              props: props,
+            }).catch((err)=>{error(err);return undefined})
+            return res.concat(generator)
+          }, generators)
+          await Promise.all(generators)
+          toolbox.loader.succeed()
+        }
       }
     }
     
