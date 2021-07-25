@@ -1,5 +1,6 @@
 const back_files = {
-    toTransform: [{
+    toTransform: [
+        {
             path: 'angular-node/backend/',
             part: 'backend/',
             filename: 'package.json',
@@ -9,7 +10,14 @@ const back_files = {
                 this: "backend",
                 by: "<%= props.bname || 'backend' %>"
             }]
-        }
+        },
+        {
+            path:'angular-node/backend/',
+            part: 'backend/',
+            filename : '.gitignore',
+            createPath: '',
+            convert : true,
+        },
     ]
 }
 

@@ -6,17 +6,18 @@ const {
   filesystem
 } = require('gluegun');
 const fs = require('fs');
+const path = require('path')
 
 
 async function modifyFile(file, replace) {
   return new Promise((resolve, reject) => {
-    fs.readFile(`${__dirname}/../templates/${file.path}${file.filename}`, 'utf8', function (err, data) {
+    fs.readFile(path.join(__dirname,'/../templates/',file.path,file.filename), 'utf8', function (err, data) {
       if (err) {
         reject(err);
       }
       let pattern = new RegExp(replace.this, "g");
       data = data.replace(pattern, replace.by);
-      fs.writeFile(`${__dirname}/../templates/${file.path}${file.filename}`, data, function (err) {
+      fs.writeFile(path.join(__dirname,'/../templates/',file.path,file.filename), data, function (err) {
         if (err) {
           reject(err);
         }
@@ -35,10 +36,12 @@ async function convert() {
   for (let files of f2convert) {
     for (let file of files) {
       if(file.convert){
-        for (let replace of file.replace) {
-          await modifyFile(file, replace);
+        if(file.replace){
+          for (let replace of file.replace) {
+            await modifyFile(file, replace);
+          }
         }
-        filesystem.rename(`${__dirname}/../templates/${file.path}${file.filename}`, `${file.filename}.ejs`);
+        filesystem.rename(path.join(__dirname,'/../templates/',file.path,file.filename), `${file.filename}.ejs`);
       }
     }
   }
