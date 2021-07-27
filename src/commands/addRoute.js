@@ -118,7 +118,7 @@ const command = {
           toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
           const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
 
-          props.model_name = responses.model
+          props.model_name = upperFisrt(responses.model)
           props.service_name = upperFirst(service_name)+"Service"
           props.service_file_name = path.basename(`${service_path}.service.ts`).replace('.ts','')
           props.model_properties_post = props.model_properties.filter(property => !properties_to_remove.includes(property.fieldName));
