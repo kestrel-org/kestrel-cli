@@ -19,23 +19,23 @@ export class <%= props.service_name %> {
     withCredentials: true,
   };
 
-  get<%= props.service_name %>(): Promise<any> {
+  get<%= props.model_name %>(): Promise<any> {
     return lastValueFrom(this.http.get(this.BASEURL + "<%= props.path %>", this.httpOptions));
   }
 
-  get<%= props.service_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
+  get<%= props.model_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
     return lastValueFrom(this.http.get(this.BASEURL + "<%= props.path %>/" + <%= props.model_id %>, this.httpOptions));
   }
 
-  delete<%= props.service_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
+  delete<%= props.model_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
     return lastValueFrom(this.http.delete(this.BASEURL + "<%= props.path %>/" + <%= props.model_id %>, this.httpOptions));
   }
 
-  post<%= props.service_name %>(<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
+  post<%= props.model_name %>(<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
     return lastValueFrom(this.http.post(this.BASEURL + "<%= props.path %>", {<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %><%= i < arr.length-1 ? ', ' : '' %><%}) %>}, this.httpOptions));
   }
 
-  put<%= props.service_name %>(<% props.model_properties.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
+  put<%= props.model_name %>(<% props.model_properties.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
     return lastValueFrom(this.http.put(this.BASEURL + "<%= props.path %>", {<% props.model_properties.forEach(function(property, i, arr){ %><%= property.fieldName %><%= i < arr.length-1 ? ', ' : '' %><%}) %>}, this.httpOptions));
   }
 }
