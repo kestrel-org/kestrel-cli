@@ -3,13 +3,6 @@ const router = express.Router();
 const models = require('<%= props.path_to_model %>');
 
 /**
- * @typedef <%= props.model_def %>
-<% for(let property of props.model_properties){  -%>
- * @property {<%= property.type %>} <%= property.fieldName %>.required
-<%} -%>
- */
-
-/**
  * @route GET /<%= props.path %>
  * @summary Return the <%= props.model %> list 
  * @group <%= props.path %>

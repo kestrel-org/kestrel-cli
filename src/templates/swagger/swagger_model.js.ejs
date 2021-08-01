@@ -1,0 +1,6 @@
+/**
+ * @typedef <%= props.model_def %>
+<% for(let property of props.model_properties){  -%>
+ * @property {<%= property.type %>} <%= property.fieldName %>.required
+<%} -%>
+ */

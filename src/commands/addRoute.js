@@ -1,4 +1,4 @@
-const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes} =  require('../assets/addRoute/functions')
+const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes, getSwaggerTypesProperties,generateSwaggerFile} =  require('../assets/addRoute/functions')
 const util = require('util')
 
 const command = {
@@ -51,6 +51,7 @@ const command = {
     const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src")
     const routes_folder = path.join(src,"routes")
     const models_folder = path.join(src,"models")
+    
 
     const routes = require(path.join(routes_folder,"routes"))
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
@@ -86,7 +87,7 @@ const command = {
     const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");
    
 
-    const props = buildTemplateProperties(responses.model, responses.path, path_to_model, database)
+    const props = buildTemplateProperties(responses.model, database, responses.path, path_to_model )
 
     toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
     await generate({
@@ -96,16 +97,31 @@ const command = {
     })
     toolbox.loader.succeed()
 
+    // Generate swagger model definition
+     
+    if(responses.model){
+      const swag_file = path.join(src,"routes/swaggerModels",upperFirst(responses.model)+".js")
+      await generateSwaggerFile(toolbox,props,swag_file)
+    }
+  
     // TODO : refactor this shitty code
     
+    // If frontend is available run the following code
+
     if(def_content.projects.frontend_path){
 
-      const create_service = await prompts.confirm(`Create the asociated service ?`)
+      const create_service = await prompts.confirm(`Create the associated service ?`)
       if(create_service){
+
+        // Define all paths for the files needed to create the service 
+
         const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path,"src")
         const services_path = path.join(front_src,"app/services")
         const service_name = path.basename(router_file)
         const service_path = path.join(services_path,service_name,service_name)
+
+        // Check if a service file does not already exist
+
         let owf = true
         const service_found = await findAsync(services_path,{matching : [`${service_name}.service.ts`,`${service_name}.service.spec.ts`]})
         if(service_found.length > 0){
@@ -115,6 +131,9 @@ const command = {
             owf = false
         }
         if(owf){
+
+          // Generate the properties to render the file from the template
+
           toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
           const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
 
@@ -127,6 +146,9 @@ const command = {
 
           const service_files = ["service","service.spec"];
           let generators = []
+
+          // Generate the service files
+
           generators = service_files.reduce((res, file) => {
             const generator = generate({
               template: `addRoute/service/${responses.model ? "crud" : "example"}.${file}.ejs`,
@@ -141,8 +163,6 @@ const command = {
       }
     }
     
-    
-
     //  Modify routes.js file
 
     delete responses.model;

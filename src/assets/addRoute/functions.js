@@ -1,7 +1,32 @@
 const {
-    strings
+    strings : {singular, upperFirst, lowerCase}
 } = require('gluegun');
 
+const swagger_convert = {
+    number : [
+        "DOUBLE",
+        "TINYINT",
+        "FLOAT",
+        "BIGINT",
+        "DECIMAL",
+        "REAL"
+    ],
+    string : [
+        "VARCHAR",
+        "DATE",
+        "DATEONLY",
+        "CITEXT",
+        "TEXT",
+        "CHAR",
+        "STRING"
+    ],
+    boolean : [
+        "BOOLEAN"
+    ],
+    integer : [
+        "INTEGER"
+    ]
+}
 // Returns a particular sequelize model as a usable object
 
 function getSequelizeModel(model,database) {
@@ -14,7 +39,7 @@ function getAllModels(database) {
     let models = [];
     for(let model in database.sequelize.models){
         models.push({
-            title: strings.upperFirst(model),
+            title: upperFirst(model),
             value: model
         });
     }
@@ -59,7 +84,7 @@ function getPrompts(router_name, models) {
 
 // Returns the properties needed to populate the template
 
-function buildTemplateProperties(model, path, path_to_model, database) {
+function buildTemplateProperties(model, database, path=null, path_to_model=null) {
 
     // Initialize properties to build the template with
 
@@ -79,33 +104,57 @@ function buildTemplateProperties(model, path, path_to_model, database) {
         const model_obj = getSequelizeModel(model,database);
         let attrs = model_obj['tableAttributes'];
         let model_id = model_obj['primaryKeyAttribute'];
-        let properties = [];
-        let swagger_types = ["string", "integer"]
         for (let attr_name in attrs) {
-            let type = strings.lowerCase(`${attrs[attr_name].type}`);
-            if (!swagger_types.includes(type)) {
-                type = 'string'
-            }
+            let type = convertSequelizeToSwaggerTypes(attrs[attr_name].type.key)
             if(attrs[attr_name].fieldName == model_id){
                 props.model_id_type = type
             }
-            properties.push(
+            props.model_properties.push(
                 {
                     type : type,
                     fieldName : attrs[attr_name].fieldName
                 }
             )
         }
-        const model_single = strings.singular(model)
-        const model_def = strings.upperFirst(model_single);
         props.model = model;
-        props.model_def = model_def;
-        props.model_single = model_single;
+        props.model_single = singular(model);
         props.model_id = model_id;
-        props.model_properties = properties;
+        props.model_def = upperFirst(singular(model));
     }
 
     return props;
+}
+
+// Update or creates the swagger file for the sawgger api
+
+function generateSwaggerFile(toolbox,props,file_path){
+    let promise = new Promise(async (resolve, reject) => {
+        const {
+            prints : {chalk,info,error},
+            filesystem : {exists},
+            template : {generate},
+            prompts
+        } = toolbox;
+        let overwrite = true;
+        if(exists(file_path)){
+            error(`A swagger definition already exist for this model !`)
+            const ow = await prompts.confirm("Overwrite ?")
+            if(!ow){
+                overwrite = false;
+            }
+        }   
+        if(overwrite){
+            toolbox.loader = info(chalk.blue.bold('Generating swagger file'),true)
+            await generate({
+                template: `swagger/swagger_model.js.ejs`,
+                target: `${file_path}`,
+                props: props,
+            })
+            toolbox.loader.succeed()
+        }
+        resolve();
+    });
+    return promise;
 }
 
 // Update or create routes
@@ -126,6 +175,27 @@ function updateRoutes(routes,router_name,responses){
     return {new_routes,update}
 }
 
+// Transform sequelize data types into sawgger data types
+
+function convertSequelizeToSwaggerTypes(type){
+    let regex_type = type.match(/^.*?(?=( |\(|\.|$))/);
+    if(regex_type.length<2){
+        throw new Error(`${type} could not be identified as a sequelize data type !`);
+    }
+    regex_type = regex_type[0];
+    let found = false;
+    for(let swagger_type in swagger_convert){
+        if(swagger_convert[swagger_type].includes(regex_type)){
+            type = swagger_type;
+            found=true;
+            break;
+        }
+    }
+    if(!found){
+        type = "string";
+    }
+    return type
+}
 
 
 module.exports = {
@@ -133,5 +203,6 @@ module.exports = {
     getSequelizeModel,
     getPrompts,
     buildTemplateProperties,
-    updateRoutes
+    updateRoutes,
+    generateSwaggerFile
 }
