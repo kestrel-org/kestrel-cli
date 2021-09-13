@@ -81,11 +81,11 @@ router.put('/', async function (req, res, next) {
  * @returns {object} 200 - OK
  * @returns {Error}  400 - Error in query syntax
  */
-router.delete('/', async function (req, res, next) {
+router.delete('/:<%= props.model_id %>', async function (req, res, next) {
   try {
     await models['<%= props.model %>'].destroy({
       where: {
-        <%= props.model_id %>: req.query.<%= props.model_id %>
+        <%= props.model_id %>: req.path.<%= props.model_id %>
       }
     })
     res.status(200).send({
