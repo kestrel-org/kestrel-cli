@@ -18,12 +18,12 @@ jobs:
         run: |
           git config --global user.email "s.foucheur@gmail.com"
           git config --global user.name "Sfoucheur"
-          git clone https://${{ secrets.ACCESS_TOKEN }}@github.com/template-angular-node/kli-cli.git
+          git clone https://${{ secrets.ACCESS_TOKEN }}@github.com/ngx-template/kli-cli.git
           cd kli-cli
           git checkout -b tempbranch
           git rm -r src/templates/angular-node
           git commit -m "delete angular-node"
-          git subtree add --prefix src/templates/angular-node https://${{ secrets.ACCESS_TOKEN }}@github.com/template-angular-node/template-angular-node.git main --squash -m "update angular-node"
+          git subtree add --prefix src/templates/angular-node https://${{ secrets.ACCESS_TOKEN }}@github.com/ngx-template/ngx-template.git main --squash -m "update angular-node"
           npm install --silent
           node src/utils/convertToTemplate.js
           git add src/templates/angular-node
