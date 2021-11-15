@@ -85,7 +85,7 @@ router.delete('/:<%= props.model_id %>', async function (req, res, next) {
   try {
     await models['<%= props.model %>'].destroy({
       where: {
-        <%= props.model_id %>: req.path.<%= props.model_id %>
+        <%= props.model_id %>: req.params.<%= props.model_id %>
       }
     })
     res.status(200).send({
