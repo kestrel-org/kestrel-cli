@@ -3,11 +3,25 @@ const router = express.Router();
 const models = require('<%= props.path_to_model %>');
 
 /**
- * @route GET /<%= props.path %>
- * @summary Return the <%= props.model %> list 
- * @group <%= props.path %>
- * @returns {Array.<<%= props.model_def %>>} 200 - ok
- * @returns {Error}  400 - Error in query syntax
+ * @swagger
+ *  tags:
+ *    name: '<%= props.path %>'
+ */
+
+ /**
+ * @swagger
+ *  /<%= props.path %>:
+ *    get:
+ *      description: Return the <%= props.model %> list 
+ *      tags: [<%= props.path %>]
+ *      responses:
+ *        200:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/<%= props.model_def %>'
+ *        400:
+ *          description: Bad request
  */
 router.get('/', async function (req, res, next) {
   try {
@@ -22,13 +36,27 @@ router.get('/', async function (req, res, next) {
   }
 });
 
-/**
- * @route POST /<%= props.path %>
- * @summary Create a <%= props.model_single %> object 
- * @group <%= props.path %>
- * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - The new <%= props.model_def %> object 
- * @returns {<%= props.model_def %>} 200 - The created object
- * @returns {Error}  400 - Error in query syntax
+ /**
+ * @swagger
+ *  /<%= props.path %>:
+ *    post:
+ *      description: Create a <%= props.model_single %> object 
+ *      tags: [<%= props.path %>]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/<%= props.model_def %>'
+ *      responses:
+ *        200:
+ *          description: The created object
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/<%= props.model_def %>'
+ *        400:
+ *          description: Bad request
  */
 router.post('/', async function (req, res, next) {
   try {
@@ -43,13 +71,27 @@ router.post('/', async function (req, res, next) {
   }
 });
 
-/**
- * @route PUT /<%= props.path %>
- * @summary Modify a <%= props.model_single %> object 
- * @group <%= props.path %>
- * @param {<%= props.model_def %>.model} <%= props.model_single %>.body.required - The modified <%= props.model_single %> object  
- * @returns {<%= props.model_def %>} 200 - The modified <%= props.model_single %> object
- * @returns {Error}  400 - Error in query syntax
+ /**
+ * @swagger
+ *  /<%= props.path %>:
+ *    put:
+ *      description: Modify a <%= props.model_single %> object 
+ *      tags: [<%= props.path %>]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/<%= props.model_def %>'
+ *      responses:
+ *        200:
+ *          description: The modified <%= props.model_single %> object
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/<%= props.model_def %>'
+ *        400:
+ *          description: Bad request
  */
 router.put('/', async function (req, res, next) {
   try {
@@ -73,13 +115,24 @@ router.put('/', async function (req, res, next) {
   }
 });
 
-/**
- * @route DELETE /<%= props.path %>
- * @summary Delete the <%= props.model_single %> object whose ID is provided as a parameter
- * @group <%= props.path %>
- * @param {integer} <%= props.model_id %>.query.required - The ID of the <%= props.model_single %> object  - eg: 1
- * @returns {object} 200 - OK
- * @returns {Error}  400 - Error in query syntax
+ /**
+ * @swagger
+ *  /<%= props.path %>/{<%= props.model_id %>}:
+ *    delete:
+ *      description: Delete the <%= props.model_single %> object whose ID is provided as a parameter
+ *      tags: [<%= props.path %>]
+ *      parameters:
+ *        - in: path
+ *          name: <%= props.model_id %>
+ *          schema:
+ *            type: integer
+ *          required: true
+ *          description: The ID of the <%= props.model_single %> object
+ *      responses:
+ *        200:
+ *          description: OK
+ *        400:
+ *          description: Bad request
  */
 router.delete('/:<%= props.model_id %>', async function (req, res, next) {
   try {
@@ -98,13 +151,28 @@ router.delete('/:<%= props.model_id %>', async function (req, res, next) {
   }
 });
 
-/**
- * @route GET /<%= props.path %>/{<%= props.model_id %>}
- * @summary Return the <%= props.model_single %> object whose ID is provided as a parameter
- * @group <%= props.path %>
- * @param {integer} <%= props.model_id %>.path.required - The ID of the <%= props.model_single %> object - eg: 1
- * @returns {<%= props.model_def %>} 200 - The <%= props.model_single %> object
- * @returns {Error}  400 - Error in query syntax
+ /**
+ * @swagger
+ *  /<%= props.path %>/{<%= props.model_id %>}:
+ *    get:
+ *      description: Return the <%= props.model_single %> object whose ID is provided as a parameter
+ *      tags: [<%= props.path %>]
+ *      parameters:
+ *        - in: path
+ *          name: <%= props.model_id %>
+ *          schema:
+ *            type: integer
+ *          required: true
+ *          description: The ID of the <%= props.model_single %> objec
+ *      responses:
+ *        200:
+ *          description: <%= props.model_single %>
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/<%= props.model_def %>'
+ *        400:
+ *          description: Bad request
  */
 router.get('/:<%= props.model_id %>', async function (req, res, next) {
   try {

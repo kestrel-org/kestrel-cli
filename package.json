@@ -1,6 +1,6 @@
 {
   "name": "kli-cli",
-  "version": "2.0.1",
+  "version": "2.5.0",
   "description": "kc CLI",
   "bin": {
     "kc": "bin/kc"
@@ -27,15 +27,15 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.0",
     "git-promise": "^1.0.0",
-    "gluegun": "latest",
+    "gluegun": "^5.1.0",
     "ora": "^5.4.1",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "jest": "^27.3.1",
-    "prettier": "^2.4.1",
+    "jest": "^27.5.1",
+    "prettier": "^2.5.1",
     "standard": "^16.0.4"
   },
   "jest": {
