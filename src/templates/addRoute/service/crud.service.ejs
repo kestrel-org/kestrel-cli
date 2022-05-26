@@ -20,7 +20,7 @@ export class <%= props.service_name %> {
   };
 
   get<%= props.model_name %>(): Promise<any> {
-    return lastValueFrom(this.http.get(`${this.BASEURL} <%= props.path %>`, this.httpOptions));
+    return lastValueFrom(this.http.get(`${this.BASEURL}<%= props.path %>`, this.httpOptions));
   }
 
   get<%= props.model_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
