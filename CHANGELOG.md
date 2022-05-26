@@ -1,6 +1,10 @@
 # Changelog
 
-## v2.6.0 - Version sync + update swagger templates - `05/26/2022`
+## v2.6.1 - Fixes - `05/26/2022`
+
+* Fix String Interpolation
+
+## v2.6.0 - Added String Interpolation - `05/26/2022`
 
 * Added String Interpolation in Frontend Services
 
