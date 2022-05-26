@@ -88,7 +88,8 @@ const command = {
               await run("rm -rf " + __dirname + "/../templates/angular-node")
             }
           }
-          await git('clone https://github.com/ngx-template/ngx-template.git ' + __dirname + '/../templates/angular-node')
+
+          await git(`clone https://github.com/ngx-template/ngx-template.git ${__dirname}/../templates/angular-node`)
           await run("node " + __dirname + "/../utils/convertToTemplate.js")
           resolve(true)
         } catch (err) {
