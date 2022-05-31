@@ -11,13 +11,6 @@ const back_files = {
                 by: "<%= props.bname || 'backend' %>"
             }]
         },
-        {
-            path:'angular-node/backend/',
-            part: 'backend/',
-            filename : '.gitignore',
-            createPath: '',
-            convert : true,
-        },
     ]
 }
 
