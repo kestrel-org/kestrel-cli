@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.6.1 - Update kli-cli to go with ESM template - `05/31/2022`
+
+* Update kli-cli to go with ESM template
+* Update dependencies
+
 ## v2.6.1 - Fixes - `05/26/2022`
 
 * Fix String Interpolation

@@ -11,13 +11,6 @@ const front_files = {
                 by: "<%= props.fname || 'frontend' %>"
             }]
         },
-        {
-            path:'angular-node/frontend/',
-            part: 'frontend/',
-            filename : '.gitignore',
-            createPath: '',
-            convert : true,
-        },
     ]
 }
 
