@@ -92,10 +92,12 @@ const command = {
 
     const modelsPath = path.join(backend_path,"src/models")
     const migrationsPath = path.join(backend_path,"src/migrations")
+    const seedersPath = path.join(backend_path,"src/seeders")
 
-    const [models,migrations] = await Promise.all([
+    const [models,migrations,seeders] = await Promise.all([
       listAsync(modelsPath),
-      listAsync(migrationsPath)
+      listAsync(migrationsPath),
+      listAsync(seedersPath)
     ])
 
     await Promise.all([
@@ -113,6 +115,15 @@ const command = {
         if(file.slice(-4)===".cjs") return;
         return await renameAsync(
           path.join(migrationsPath,file),
+          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+          {overwrite : true}
+        )
+      }),
+
+      asyncForEach(seeders,async (file)=>{
+        if(file.slice(-4)===".cjs") return;
+        return await renameAsync(
+          path.join(seedersPath,file),
           `${file.slice(0,file.lastIndexOf("."))}.cjs`,
           {overwrite : true}
         )

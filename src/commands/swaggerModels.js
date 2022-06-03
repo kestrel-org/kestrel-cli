@@ -23,9 +23,9 @@ const command = {
     const swaggerModels = path.join(backend_src,"routes/swaggerModels");
 
     require('dotenv').config({ path: path.join(path.dirname(project_def),backend_path,".env") });
-    const database = require(path.join(models_folder,"index"));
+    const database = await import(url.pathToFileURL(path.join(models_folder,"index.js")))
 
-    const models = getAllModels(database);
+    const models = getAllModels(database.default);
 
     const {model} = await prompts.any({
         type: 'select',
@@ -36,7 +36,7 @@ const command = {
     })
     
     const file_path = path.join(swaggerModels,upperFirst(model)+'.js');
-    const props = buildTemplateProperties(model,database);
+    const props = buildTemplateProperties(model,database.default);
 
     await generateSwaggerFile(toolbox,props,file_path);
     

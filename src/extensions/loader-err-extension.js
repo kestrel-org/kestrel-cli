@@ -18,7 +18,7 @@ module.exports = toolbox => {
           toolbox.loader.fail()
           toolbox.loader = null
         }
-        toolbox.prints.error(`${err.name} : ${err.message}`)
+        toolbox.prints.error(`Error : ${err.stack}`)
         process.exit(0);
       })
     }

@@ -43,13 +43,13 @@ const command = {
         let url = await prompts.ask("Enter domain name or IP ",validateAddress);
         url = `https://${url}`
 
-        let is_present = back_cors.whitelist.some(address => url == address)
+        let is_present = back_cors.default.whitelist.some(address => url == address)
 
         if(!is_present){
-          back_cors.whitelist = back_cors.whitelist.concat([url])
+          back_cors.default.whitelist = back_cors.default.whitelist.concat([url])
         }
 
-        await writeAsync(`${back_cors_path}.js`,`module.exports = ${util.inspect(back_cors)}`,{jsonIndent:4})
+        await writeAsync(`${back_cors_path}.js`,`module.exports = ${util.inspect(back_cors.default)}`,{jsonIndent:4})
         await patch(
           front_cors_path, 
           { insert: `API_URL: '${url}/api/'`, replace: new RegExp(/API_URL.*'.*'/g) },

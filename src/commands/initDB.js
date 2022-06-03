@@ -1,5 +1,6 @@
 const path = require('path')
 const { inherits } = require('util')
+const asyncForEach = require('../utils/asyncForEach')
 const command = {
     name: 'initdb',
     alias:['idb'],
@@ -10,7 +11,7 @@ const command = {
       const {
         project_def,
         parameters,
-        filesystem : {read},
+        filesystem : {read,renameAsync,listAsync},
         strings : {upperCase,lowerCase},
         system: {run},
         prints : {info,error,log},
@@ -75,6 +76,47 @@ const command = {
       let models_gen = await run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`,{ 
         cwd: backend_path
       })
+
+      const modelsPath = path.join(backend_path,"src/models")
+      const migrationsPath = path.join(backend_path,"src/migrations")
+      const seedersPath = path.join(backend_path,"src/seeders")
+
+      const [models,migrations,seeders] = await Promise.all([
+        listAsync(modelsPath),
+        listAsync(migrationsPath),
+        listAsync(seedersPath)
+      ])
+
+      await Promise.all([
+
+        asyncForEach(models,async (file)=>{
+          if(file==="index.js" || file.slice(-4)===".cjs") return;
+          return await renameAsync(
+            path.join(modelsPath,file),
+            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+            {overwrite : true}
+          )
+        }),
+
+        asyncForEach(migrations,async (file)=>{
+          if(file.slice(-4)===".cjs") return;
+          return await renameAsync(
+            path.join(migrationsPath,file),
+            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+            {overwrite : true}
+          )
+        }),
+
+        asyncForEach(seeders,async (file)=>{
+          if(file.slice(-4)===".cjs") return;
+          return await renameAsync(
+            path.join(seedersPath,file),
+            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+            {overwrite : true}
+          )
+        })
+      ])
+
       toolbox.loader.succeed()
       log(models_gen);
 

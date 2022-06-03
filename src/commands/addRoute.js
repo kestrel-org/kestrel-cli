@@ -1,5 +1,6 @@
 const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes, getSwaggerTypesProperties,generateSwaggerFile} =  require('../assets/addRoute/functions')
 const util = require('util')
+const url = require('url')
 
 const command = {
   name: 'addRoute',
@@ -53,13 +54,13 @@ const command = {
     const models_folder = path.join(src,"models")
     
 
-    const routes = require(path.join(routes_folder,"routes"))
+    const routes = await import(url.pathToFileURL(path.join(routes_folder,"routes.js")))
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
     const router_file = router_name.split(separator).pop()
   
     require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.projects.backend_path,".env") })
-    const database = require(path.join(models_folder,"index"));
-  
+    const database = await import(url.pathToFileURL(path.join(models_folder,"index.js")))
+   
     // Check if router already exist
 
     if (exists(router_file_path)) {
@@ -76,7 +77,7 @@ const command = {
       title: "None",
       value: false
     }]
-    models = models.concat(getAllModels(database));
+    models = models.concat(getAllModels(database.default));
 
     // Prompt user with different questions to build the router
 
@@ -87,7 +88,7 @@ const command = {
     const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");
    
 
-    const props = buildTemplateProperties(responses.model, database, responses.path, path_to_model )
+    const props = buildTemplateProperties(responses.model, database.default, responses.path, path_to_model )
 
     toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
     await generate({
@@ -167,7 +168,7 @@ const command = {
 
     delete responses.model;
 
-    const {new_routes,update} = updateRoutes(routes,router_name,responses)
+    const {new_routes,update} = updateRoutes(routes.default,router_name,responses)
 
     toolbox.loader = info(chalk.blue.bold('Adding router to the routes'),true)
     await writeAsync(path.join(routes_folder,"routes.js"),"export default " + util.inspect(new_routes))
