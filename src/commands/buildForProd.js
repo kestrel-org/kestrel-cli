@@ -23,7 +23,7 @@ const command = {
       const root_dir = path.dirname(project_def)
       const frontend_path = path.join(root_dir,def_content.projects.frontend_path)
       const backend_path = path.join(root_dir,def_content.projects.backend_path)
-      const back_cors_path = path.join(backend_path,'src/configs/cors/config.mjs').replace(/\\/g,"/")
+      const back_cors_path = path.join(backend_path,'src/configs/cors/config.js').replace(/\\/g,"/")
       const front_cors_path = path.join(frontend_path,'src/environments/environment.prod.ts').replace(/\\/g,"/")
 
       let back_cors = await import(url.pathToFileURL(back_cors_path))
@@ -49,7 +49,7 @@ const command = {
           back_cors.whitelist = back_cors.whitelist.concat([url])
         }
 
-        await writeAsync(`${back_cors_path}.mjs`,`module.exports = ${util.inspect(back_cors)}`,{jsonIndent:4})
+        await writeAsync(`${back_cors_path}.js`,`module.exports = ${util.inspect(back_cors)}`,{jsonIndent:4})
         await patch(
           front_cors_path, 
           { insert: `API_URL: '${url}/api/'`, replace: new RegExp(/API_URL.*'.*'/g) },
@@ -83,7 +83,7 @@ const command = {
         overwrite: true,
         matching: [
           './!(node_modules)',
-          './!(node_modules)/**/!(server.mjs)'
+          './!(node_modules)/**/!(server.js)'
         ]
       })
       toolbox.loader.succeed()
@@ -98,11 +98,11 @@ const command = {
       })
       toolbox.loader.succeed()
 
-      toolbox.loader = info('Update app.mjs for production ',true)
+      toolbox.loader = info('Update app.js for production ',true)
       let dirnameString = "import * as url from 'url';\nimport path from 'path';\nconst __dirname = path.dirname(url.fileURLToPath(import.meta.url))\n"
       let angularStr = "// Angular \napp.use(express.static(path.join(__dirname, \"public\")));\napp.get('**', function (req, res) {\n\tres.sendFile(__dirname + '/public/index.html');\n});\n\n"
-      await patch(path.join(build_dir,"src/app.mjs"), { insert: angularStr, before: "// catch 404" })
-      await patch(path.join(build_dir,"src/app.mjs"), { insert: dirnameString, before: "const app = express();"})
+      await patch(path.join(build_dir,"src/app.js"), { insert: angularStr, before: "// catch 404" })
+      await patch(path.join(build_dir,"src/app.js"), { insert: dirnameString, before: "const app = express();"})
       await dirAsync(path.join(build_dir,"src/public"))
       toolbox.loader.succeed()
 
@@ -131,14 +131,14 @@ const command = {
 
       toolbox.loader = info('Generating new server file ',true)
       await generate({
-        template: 'buildForProd/server.mjs.ejs',
-        target: `${path.join(build_dir,"src/server.mjs")}`,
+        template: 'buildForProd/server.js.ejs',
+        target: `${path.join(build_dir,"src/server.js")}`,
         props: { 
           sslkey : path.basename(key_certificate[0]),
           sslcrt : path.basename(crt_certificate[0])
         },
       })
-      await patch(path.join(build_dir,"src/server.mjs"), { insert: dirnameString, after: "import fs from 'fs';"})
+      await patch(path.join(build_dir,"src/server.js"), { insert: dirnameString, after: "import fs from 'fs';"})
       toolbox.loader.succeed()
 
       info('Build finished !')

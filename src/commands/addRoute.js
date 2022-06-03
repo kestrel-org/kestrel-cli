@@ -54,7 +54,7 @@ const command = {
     
 
     const routes = require(path.join(routes_folder,"routes"))
-    const router_file_path = path.join(routes_folder,`${router_name}.mjs`)
+    const router_file_path = path.join(routes_folder,`${router_name}.js`)
     const router_file = router_name.split(separator).pop()
   
     require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.projects.backend_path,".env") })
@@ -100,7 +100,7 @@ const command = {
     // Generate swagger model definition
      
     if(responses.model){
-      const swag_file = path.join(src,"routes/swaggerModels",upperFirst(responses.model)+".mjs")
+      const swag_file = path.join(src,"routes/swaggerModels",upperFirst(responses.model)+".js")
       await generateSwaggerFile(toolbox,props,swag_file)
     }
   
@@ -163,17 +163,17 @@ const command = {
       }
     }
     
-    //  Modify routes.mjs file
+    //  Modify routes.js file
 
     delete responses.model;
 
     const {new_routes,update} = updateRoutes(routes,router_name,responses)
 
     toolbox.loader = info(chalk.blue.bold('Adding router to the routes'),true)
-    await writeAsync(path.join(routes_folder,"routes.mjs"),"module.exports = " + util.inspect(new_routes))
+    await writeAsync(path.join(routes_folder,"routes.js"),"export default " + util.inspect(new_routes))
     toolbox.loader.succeed()
     
-    info(chalk.blue.bold(`Router ${update ? "updated" : "created"} : `) + chalk.white.bold(`${router_name}.mjs`));
+    info(chalk.blue.bold(`Router ${update ? "updated" : "created"} : `) + chalk.white.bold(`${router_name}.js`));
     
     
     
