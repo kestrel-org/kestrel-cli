@@ -1,3 +1,5 @@
+const asyncForEach = require('../utils/asyncForEach')
+
 const command = {
   name: 'database',
   alias:['db'],
@@ -9,7 +11,7 @@ const command = {
       system : {run},
       prints:  {log,info,error},
       strings : {upperCase,lowerCase},
-      filesystem : {read},
+      filesystem : {read,renameAsync,listAsync},
       parameters : {first,options},
       path,
       project_def,
@@ -64,7 +66,7 @@ const command = {
 
       env = lowerCase(env)
 
-      sqlz_cmd = `node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta"`
+      sqlz_cmd = `node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`
       command_name = "generate-models"
     }else{
       let command = first;
@@ -87,6 +89,36 @@ const command = {
     let sequelize_cmd = await run(`${sqlz_cmd}`,{
       cwd : backend_path
     })
+
+    const modelsPath = path.join(backend_path,"src/models")
+    const migrationsPath = path.join(backend_path,"src/migrations")
+
+    const [models,migrations] = await Promise.all([
+      listAsync(modelsPath),
+      listAsync(migrationsPath)
+    ])
+
+    await Promise.all([
+
+      asyncForEach(models,async (file)=>{
+        if(file==="index.js" || file.slice(-4)===".cjs") return;
+        return await renameAsync(
+          path.join(modelsPath,file),
+          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+          {overwrite : true}
+        )
+      }),
+
+      asyncForEach(migrations,async (file)=>{
+        if(file.slice(-4)===".cjs") return;
+        return await renameAsync(
+          path.join(migrationsPath,file),
+          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
+          {overwrite : true}
+        )
+      })
+    ])
+    
     toolbox.loader.succeed()
     log(sequelize_cmd)
 
