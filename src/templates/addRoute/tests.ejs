@@ -1,0 +1,63 @@
+import 'regenerator-runtime/runtime';
+import request from 'supertest';
+import app from '<%= props.path_to_app %>/src/app';
+
+const data = {
+
+<% for(let property of props.model_data){  -%>
+    "<%= property.name %>" : "",
+<%} %>
+}
+
+// GET
+describe('Get <%= props.model %>', () => {
+    it('should return <%= props.model %> list', async () => {
+        const res = await request(app)
+            .get('/api/<%= props.path %>');
+        expect(res.statusCode).toEqual(200);
+    })
+})
+
+// POST
+describe('Post <%= props.model %>', () => {
+    it('should create and return a <%= props.model_single %>', async () => {
+        const res = await request(app)
+            .post('/api/<%= props.path %>')
+            .send(data);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('<%= props.model_single %>')
+        data.id = res.body.<%= props.model_single %>.id;
+    })
+})
+
+// GET
+describe('Get <%= props.model %> by Id', () => {
+    it('should return a <%= props.model_single %>', async () => {
+        const res = await request(app)
+            .get('/api/<%= props.path %>/' + data.id);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('<%= props.model_single %>')
+    })
+})
+
+// PUT
+describe('Put <%= props.model %>', () => {
+    it('should edit and return a <%= props.model_single %>', async () => {
+
+        const res = await request(app)
+            .put('/api/<%= props.path %>')
+            .send(data);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('<%= props.model_single %>')
+    })
+})
+
+// DELETE
+describe('Delete <%= props.model %> by Id', () => {
+    it('should delete a user', async () => {
+        const res = await request(app)
+            .delete('/api/<%= props.path %>/' + data.id);
+        expect(res.statusCode).toEqual(200);
+    })
+})

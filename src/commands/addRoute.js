@@ -1,4 +1,4 @@
-const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes, getSwaggerTypesProperties,generateSwaggerFile} =  require('../assets/addRoute/functions')
+const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes, getSwaggerTypesProperties,generateSwaggerFile,generateTestFile} =  require('../assets/addRoute/functions')
 const util = require('util')
 const url = require('url')
 
@@ -49,14 +49,17 @@ const command = {
     
     // All paths to needed files such as the project routes folder
 
-    const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src")
+    const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src/")
     const routes_folder = path.join(src,"routes")
     const models_folder = path.join(src,"models")
-    
 
     const routes = await import(url.pathToFileURL(path.join(routes_folder,"routes.js")))
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
     const router_file = router_name.split(separator).pop()
+
+    const root_dir = path.dirname(project_def)
+    const backend_path = path.join(root_dir,def_content.projects.backend_path)
+    const tests_path = path.join(backend_path,"tests")
   
     require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.projects.backend_path,".env") })
     const database = await import(url.pathToFileURL(path.join(models_folder,"index.js")))
@@ -81,14 +84,21 @@ const command = {
 
     // Prompt user with different questions to build the router
 
-    const responses = await prompts.any(getPrompts(router_name, models));
+    const responses = await prompts.any(getPrompts(toolbox, backend_path, router_name, models));
 
     // Build router from template
 
-    const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");
-   
+    const path_to_model = path.relative(path.dirname(router_file_path),models_folder).replace(/\\/g,"/");    
+    const path_to_app = path.relative(path.dirname(router_file_path),src).replace(/\\/g,"/");
 
-    const props = buildTemplateProperties(responses.model, database.default, responses.path, path_to_model )
+    const props = buildTemplateProperties(responses.model, database.default, responses.path, path_to_model, path_to_app)
+
+
+    // Generate test file for the backend
+    if(responses.createTest && (responses.testOverwrite===undefined || responses.testOverwrite)){
+      const test_file = path.join(tests_path,`${router_name}.spec.js`)
+      await generateTestFile(toolbox,props,test_file)
+    }
 
     toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
     await generate({
