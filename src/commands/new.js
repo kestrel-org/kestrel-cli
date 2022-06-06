@@ -110,8 +110,8 @@ const command = {
       await copyAsync(__dirname + '/../templates/angular-node/' + toCreate, cwd() + separator + props.name, {
         overwrite: true,
         matching: [
-          './!(.github|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md|*.ejs)',
-          './!(.github)/**/!(*.ejs)'
+          './!(.github|.git|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md|*.ejs)',
+          './!(.github|.git)/**/!(*.ejs)'
         ]
       })
       toolbox.loader.succeed()
