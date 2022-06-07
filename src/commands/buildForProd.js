@@ -10,7 +10,7 @@ const command = {
       const {
         project_def,
         prints : {error,info,log},
-        filesystem:{writeAsync,copyAsync,exists,removeAsync, dirAsync, findAsync},
+        filesystem:{writeAsync,copyAsync,exists,removeAsync, dirAsync, findAsync, readAsync},
         system : {run},
         prompts,
         patching : {patch},
@@ -86,6 +86,12 @@ const command = {
           './!(node_modules)/**/!(server.js)'
         ]
       })
+      
+      const packageJson = await readAsync(path.join(build_dir,"package.json"),"json")
+      packageJson.scripts.start = 'node --es-module-specifier-resolution=node ./src/server.js'
+      delete packageJson.nodemonConfig;
+      await writeAsync(`${path.join(build_dir,"package.json")}`,JSON.stringify(packageJson,null,2))
+
       toolbox.loader.succeed()
       toolbox.loader = info('Installing backend dependencies ',true)
       await run(`npm install --silent`,{ 

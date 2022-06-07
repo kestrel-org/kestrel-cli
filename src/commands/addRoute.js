@@ -1,6 +1,14 @@
-const {getAllModels, getPrompts, buildTemplateProperties, updateRoutes, getSwaggerTypesProperties,generateSwaggerFile,generateTestFile} =  require('../assets/addRoute/functions')
+const {
+  sequelizeUtils : {getAllModels},
+  getPrompts,
+  buildTemplateProperties,
+  updateRoutes,
+  generateUtils : {generateSwaggerFile,generateTestFile,generateRouterFile,generateServiceFiles}
+} =  require('../assets/addRoute/functions')
+
 const util = require('util')
 const url = require('url')
+const { basename } = require('path')
 
 const command = {
   name: 'addRoute',
@@ -57,6 +65,12 @@ const command = {
     const router_file_path = path.join(routes_folder,`${router_name}.js`)
     const router_file = router_name.split(separator).pop()
 
+    // Front paths
+    const service_name = path.basename(router_file)
+    const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path || "","src")
+    const services_path = path.join(front_src,"app/services")
+    const service_path = path.join(services_path,service_name,service_name)
+
     const root_dir = path.dirname(project_def)
     const backend_path = path.join(root_dir,def_content.projects.backend_path)
     const tests_path = path.join(backend_path,"tests")
@@ -84,7 +98,15 @@ const command = {
 
     // Prompt user with different questions to build the router
 
-    const responses = await prompts.any(getPrompts(toolbox, backend_path, router_name, models));
+    const questionsPaths = {
+      src,
+      backend_path,
+      service_name,
+      services_path,
+      service_path
+    }
+
+    const responses = await prompts.any(getPrompts(toolbox, def_content, router_name, models, questionsPaths));
 
     // Build router from template
 
@@ -100,93 +122,40 @@ const command = {
       await generateTestFile(toolbox,props,test_file)
     }
 
-    toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
-    await generate({
-      template: `addRoute/${responses.model ? "crud" : "example"}.ejs`,
-      target: `${router_file_path}`,
-      props: props,
-    })
-    toolbox.loader.succeed()
+    await generateRouterFile(toolbox,props,responses.model,router_file_path)
 
     // Generate swagger model definition
      
     if(responses.model){
       const swag_file = path.join(src,"routes/swaggerModels",upperFirst(responses.model)+".js")
       await generateSwaggerFile(toolbox,props,swag_file)
+      
     }
   
-    // TODO : refactor this shitty code
+    // If frontend available run code
     
-    // If frontend is available run the following code
+    if(responses.createService && (responses.serviceOverwrite===undefined || responses.serviceOverwrite)){
 
-    if(def_content.projects.frontend_path){
+      // Define all paths for the files needed to create the service 
 
-      const create_service = await prompts.confirm(`Create the associated service ?`)
-      if(create_service){
-
-        // Define all paths for the files needed to create the service 
-
-        const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path,"src")
-        const services_path = path.join(front_src,"app/services")
-        const service_name = path.basename(router_file)
-        const service_path = path.join(services_path,service_name,service_name)
-
-        // Check if a service file does not already exist
-
-        let owf = true
-        const service_found = await findAsync(services_path,{matching : [`${service_name}.service.ts`,`${service_name}.service.spec.ts`]})
-        if(service_found.length > 0){
-          error(`A service named ${service_name} already exists !`)
-          const overwrite_service = await prompts.confirm(`Overwrite ?`)
-          if(!overwrite_service)
-            owf = false
-        }
-        if(owf){
-
-          // Generate the properties to render the file from the template
-
-          toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
-          const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
-
-          props.model_name = upperFirst(responses.model)
-          props.service_name = upperFirst(service_name)+"Service"
-          props.service_file_name = path.basename(`${service_path}.service.ts`).replace('.ts','')
-          props.model_properties_post = props.model_properties.filter(property => !properties_to_remove.includes(property.fieldName));
-          props.path_to_env = path.relative(path.dirname(`${service_path}.service.ts`),path.join(front_src,"environments/environment")).replace(/\\/g,"/")
-          props.model_id_type = ["integer"].includes(props.model_id_type) ? "number" : props.model_id_type
-
-          const service_files = ["service","service.spec"];
-          let generators = []
-
-          // Generate the service files
-
-          generators = service_files.reduce((res, file) => {
-            const generator = generate({
-              template: `addRoute/service/${responses.model ? "crud" : "example"}.${file}.ejs`,
-              target: `${service_path}.${file}.ts`,
-              props: props,
-            }).catch((err)=>{error(err);return undefined})
-            return res.concat(generator)
-          }, generators)
-          await Promise.all(generators)
-          toolbox.loader.succeed()
-        }
+      const frontPaths = {
+        front_src,
+        service_path,
+        service_name
       }
+
+      await generateServiceFiles(toolbox,props,responses.model,frontPaths)
     }
     
     //  Modify routes.js file
 
-    delete responses.model;
-
-    const {new_routes,update} = updateRoutes(routes.default,router_name,responses)
+    const {new_routes,update} = updateRoutes(routes.default,router_name,Object.fromEntries(Object.entries(responses).slice(0,3)))
 
     toolbox.loader = info(chalk.blue.bold('Adding router to the routes'),true)
     await writeAsync(path.join(routes_folder,"routes.js"),"export default " + util.inspect(new_routes))
     toolbox.loader.succeed()
     
     info(chalk.blue.bold(`Router ${update ? "updated" : "created"} : `) + chalk.white.bold(`${router_name}.js`));
-    
-    
     
   }
 }

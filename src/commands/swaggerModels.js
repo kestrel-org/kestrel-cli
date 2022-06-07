@@ -1,5 +1,9 @@
-const {getAllModels, generateSwaggerFile, buildTemplateProperties} =  require('../assets/addRoute/functions')
-const url = require('url')
+const {
+  sequelizeUtils : {getAllModels}, 
+  generateUtils : {generateSwaggerFile}, 
+  buildTemplateProperties
+} =  require('../assets/addRoute/functions')
+const url = require('url');
 
 const command = {
   name: 'swaggerModels',
@@ -9,8 +13,9 @@ const command = {
   description : "Create new swagger model for the swagger api",
   run: async toolbox => {
     const {
-      filesystem: { read },
-      prompts,
+      filesystem: { read, exists },
+      prompts : {any},
+      prints : {error},
       strings : { upperFirst },
       path,
       project_def
@@ -28,21 +33,39 @@ const command = {
 
     const models = getAllModels(database.default);
 
-    const {model} = await prompts.any({
+    const {model,swaggerOverwrite} = await any([
+      {
         type: 'select',
         name: 'model',
         message: 'Select a model',
         choices: models,
         initial: 0
-    })
+      },
+      {
+        type: (prev, values, prompt) => {
+            if(exists(path.join(path.join(swaggerModels,upperFirst(values.model)+'.js')))){
+                return "toggle";
+            }   
+            return null;
+        },
+        name: 'swaggerOverwrite',
+        message: (prev, values) => {
+            const errorMsg = error('A swagger definition already exist for this model !')
+            return `${errorMsg === undefined ? '' : errorMsg}Overwrite ?`
+        },
+        initial: false,
+        active: 'yes',
+        inactive: 'no'
+      }
+    ])
     
     const file_path = path.join(swaggerModels,upperFirst(model)+'.js');
     const props = buildTemplateProperties(model,database.default);
 
+    if(swaggerOverwrite!==undefined && swaggerOverwrite==false)
+      return undefined
     await generateSwaggerFile(toolbox,props,file_path);
-    
-    
-
+  
   }
 }
 module.exports = command
