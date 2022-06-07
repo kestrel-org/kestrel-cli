@@ -13,8 +13,7 @@ export class <%= props.service_name %> {
 
   httpOptions = {
     headers: new HttpHeaders({
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": environment.ORIGIN_URL,
+      "Content-Type": "application/json"
     }),
     withCredentials: true,
   };

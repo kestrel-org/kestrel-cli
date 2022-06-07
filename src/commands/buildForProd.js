@@ -48,8 +48,8 @@ const command = {
         if(!is_present){
           back_cors.default.whitelist = back_cors.default.whitelist.concat([url])
         }
-
-        await writeAsync(`${back_cors_path}.js`,`module.exports = ${util.inspect(back_cors.default)}`,{jsonIndent:4})
+      
+        await writeAsync(`${back_cors_path}`,`export default ${util.inspect(back_cors.default)}`,{jsonIndent:4})
         await patch(
           front_cors_path, 
           { insert: `API_URL: '${url}/api/'`, replace: new RegExp(/API_URL.*'.*'/g) },

@@ -1,4 +1,5 @@
 const {getAllModels, generateSwaggerFile, buildTemplateProperties} =  require('../assets/addRoute/functions')
+const url = require('url')
 
 const command = {
   name: 'swaggerModels',
