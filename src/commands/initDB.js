@@ -1,5 +1,4 @@
 const path = require('path')
-const { inherits } = require('util')
 const asyncForEach = require('../utils/asyncForEach')
 const command = {
     name: 'initdb',

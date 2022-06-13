@@ -8,7 +8,6 @@ const {
 
 const util = require('util')
 const url = require('url')
-const { basename } = require('path')
 
 const command = {
   name: 'addRoute',
@@ -20,12 +19,11 @@ const command = {
     const {
       parameters,
       prints : {info,error,chalk,log},
-      filesystem: { read, exists, separator, writeAsync, findAsync },
+      filesystem: { read, exists, separator, writeAsync },
       prompts,
       strings : {upperFirst},
       path,
-      project_def,
-      template : {generate}
+      project_def
     } = toolbox
   
     // Get the project defintion as json

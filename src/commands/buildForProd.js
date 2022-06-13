@@ -9,7 +9,7 @@ const command = {
     run: async toolbox => {
       const {
         project_def,
-        prints : {error,info,log},
+        prints : {error,info},
         filesystem:{writeAsync,copyAsync,exists,removeAsync, dirAsync, findAsync, readAsync},
         system : {run},
         prompts,
