@@ -13,22 +13,21 @@ const command = {
   description : "Create new swagger model for the swagger api",
   run: async toolbox => {
     const {
-      filesystem: { read, exists },
+      filesystem: { exists },
       prompts : {any},
-      prints : {error},
+      prints : {warn},
       strings : { upperFirst },
       path,
-      project_def
+      project : {
+        backend_path
+      }
     } = toolbox
   
-    // Get the project defintion as json
-    const def_content = read(project_def,"json");
-    const {backend_path} = def_content.projects;
-    const backend_src = path.join(path.dirname(project_def),backend_path,"src");
+    const backend_src = path.join(backend_path,"src");
     const models_folder = path.join(backend_src,"models")
     const swaggerModels = path.join(backend_src,"routes/swaggerModels");
 
-    require('dotenv').config({ path: path.join(path.dirname(project_def),backend_path,".env") });
+    require('dotenv').config({ path: path.join(backend_path,".env") });
     const database = await import(url.pathToFileURL(path.join(models_folder,"index.js")))
 
     const models = getAllModels(database.default);
@@ -50,7 +49,7 @@ const command = {
         },
         name: 'swaggerOverwrite',
         message: (prev, values) => {
-            const errorMsg = error('A swagger definition already exist for this model !')
+            const errorMsg = warn('A swagger definition already exist for this model !')
             return `${errorMsg === undefined ? '' : errorMsg}Overwrite ?`
         },
         initial: false,

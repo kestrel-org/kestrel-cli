@@ -1,0 +1,1 @@
+String.prototype.byteSize = () => new TextEncoder().encode(this).length;

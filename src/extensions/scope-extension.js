@@ -2,7 +2,7 @@ const path = require('path')
 const lookUpDef = require('./utils/findProjectDef') 
 module.exports = toolbox => {
     const {
-        prints : {error,log},
+        prints : {error},
         filesystem: { cwd, exists, read },
     } = toolbox
 
@@ -14,6 +14,8 @@ module.exports = toolbox => {
         // Check if current directory is in a kli-cli project
 
         const project_def = lookUpDef(cwd())
+        toolbox.project = {}
+        toolbox.project.project_def = project_def;
 
         if(command.scope == "in"){
             if (project_def === null) {
@@ -25,6 +27,7 @@ module.exports = toolbox => {
             // Get the project defintion as json
             const def_content = read(project_def,"json")
             const root_dir = path.dirname(project_def)
+            toolbox.project.def_content = def_content
             
             if(command.needs && command.needs.length<=2){
                 for(let need of command.needs){
@@ -37,16 +40,23 @@ module.exports = toolbox => {
             
             if(def_content.projects.hasOwnProperty('backend_path')){
                 if(!exists(path.join(root_dir,def_content.projects.backend_path))){
-                    error(`Cannot find directory ' ${def_content.projects.backend_path} ', did you change its name, if so update it in the kli-cli.json file`)
+                    error(`Cannot find directory '${def_content.projects.backend_path}', did you change its name, if so update it in the kli-cli.json file`)
                     return process.exit(0);
                 }
+                const backend_path = path.join(root_dir,def_content.projects.backend_path)
+                toolbox.project.backend_path = backend_path
             }
+
             if(def_content.projects.hasOwnProperty('frontend_path')){
                 if(!exists(path.join(root_dir,def_content.projects.frontend_path))){
-                    error(`Cannot find directory ' ${def_content.projects.frontend_path} ', did you change its name, if so update it in the kli-cli.json file`)
+                    error(`Cannot find directory '${def_content.projects.frontend_path}', did you change its name, if so update it in the kli-cli.json file`)
                     return process.exit(0);
                 }
+                const frontend_path = path.join(root_dir,def_content.projects.frontend_path)
+                toolbox.project.frontend_path = frontend_path
             }
+
+            
         }
         if(command.scope == "out"){
             if (project_def != null) {
@@ -55,7 +65,6 @@ module.exports = toolbox => {
                 return process.exit(0);
             }
         }
-        toolbox.project_def = project_def;
     }
     
 }

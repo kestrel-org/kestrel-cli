@@ -1,11 +1,14 @@
 // Returns questions to prompt the user with
 
-function getPrompts(toolbox, def_content, router_name, models, paths) {
+function getPrompts(toolbox, router_name, models, paths) {
     const {
         filesystem : {exists},
-        prints : {error},
+        prints : {warn},
         strings : {upperFirst},
-        path
+        path,
+        project : {
+            def_content
+        }
     } = toolbox
 
     let questions = [{
@@ -59,7 +62,7 @@ function getPrompts(toolbox, def_content, router_name, models, paths) {
             },
             name: 'testOverwrite',
             message: (prev, values) => {
-                const errorMsg = error('A test file already exist with this name !')
+                const errorMsg = warn('A test file already exist with this name !')
                 return `${errorMsg === undefined ? '' : errorMsg}Overwrite ?`
             },
             initial: false,
@@ -94,7 +97,7 @@ function getPrompts(toolbox, def_content, router_name, models, paths) {
             },
             name: 'serviceOverwrite',
             message: (prev, values) => {
-                const errorMsg = error(`A service named ${paths.service_name} already exists !`)
+                const errorMsg = warn(`A service named ${paths.service_name} already exists !`)
                 return `${errorMsg === undefined ? '' : errorMsg}Overwrite ?`
             },
             initial: false,
@@ -113,7 +116,7 @@ function getPrompts(toolbox, def_content, router_name, models, paths) {
             },
             name: 'swaggerOverwrite',
             message: (prev, values) => {
-                const errorMsg = error('A swagger definition already exist for this model !')
+                const errorMsg = warn('A swagger definition already exist for this model !')
                 return `${errorMsg === undefined ? '' : errorMsg}Overwrite ?`
             },
             initial: false,

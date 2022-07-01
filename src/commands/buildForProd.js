@@ -1,5 +1,6 @@
 const util = require('util')
 const url = require('url')
+const updateFileSystem = require('../extensions/utils/updateFileSystem')
 const command = {
     name: 'build',
     alias:[],
@@ -8,21 +9,21 @@ const command = {
     description : "Build project for production",
     run: async toolbox => {
       const {
-        project_def,
-        prints : {error,info},
+        project : {
+          frontend_path,
+          backend_path,
+          project_def
+        },
+        prints : {error,infoLoader},
         filesystem:{writeAsync,copyAsync,exists,removeAsync, dirAsync, findAsync, readAsync},
         system : {run},
         prompts,
         patching : {patch},
         template : {generate},
         path,
-        filesystem : {read}
       } = toolbox
       
-      const def_content = read(project_def,"json")
       const root_dir = path.dirname(project_def)
-      const frontend_path = path.join(root_dir,def_content.projects.frontend_path)
-      const backend_path = path.join(root_dir,def_content.projects.backend_path)
       const back_cors_path = path.join(backend_path,'src/configs/cors/config.js').replace(/\\/g,"/")
       const front_cors_path = path.join(frontend_path,'src/environments/environment.prod.ts').replace(/\\/g,"/")
 
@@ -73,12 +74,15 @@ const command = {
         process.exit(0)
       }
 
+      let buildExist = false
+
       if(exists(build_dir)){
-        toolbox.loader = info("Deleting previous build directory ",true);
+        buildExist = true
+        toolbox.loader = infoLoader("Deleting previous build directory");
         await removeAsync(build_dir)
         toolbox.loader.succeed();
       }
-      toolbox.loader = info('Copying backend to dist',true)
+      toolbox.loader = infoLoader('Copying backend to dist')
       await copyAsync(backend_path, build_dir, {
         overwrite: true,
         matching: [
@@ -93,7 +97,7 @@ const command = {
       await writeAsync(`${path.join(build_dir,"package.json")}`,JSON.stringify(packageJson,null,2))
 
       toolbox.loader.succeed()
-      toolbox.loader = info('Installing backend dependencies ',true)
+      toolbox.loader = infoLoader('Installing backend dependencies')
       await run(`npm install --silent`,{ 
         cwd: build_dir
       }).catch(err=>{
@@ -104,7 +108,7 @@ const command = {
       })
       toolbox.loader.succeed()
 
-      toolbox.loader = info('Update app.js for production ',true)
+      toolbox.loader = infoLoader('Update app.js for production')
       let dirnameString = "import * as url from 'url';\nimport path from 'path';\nconst __dirname = path.dirname(url.fileURLToPath(import.meta.url))\n"
       let angularStr = "// Angular \napp.use(express.static(path.join(__dirname, \"public\")));\napp.get('**', function (req, res) {\n\tres.sendFile(__dirname + '/public/index.html');\n});\n\n"
       await patch(path.join(build_dir,"src/app.js"), { insert: angularStr, before: "// catch 404" })
@@ -113,7 +117,7 @@ const command = {
       toolbox.loader.succeed()
 
       if(!exists(path.join(frontend_path,"node_modules"))){
-        toolbox.loader = info('Installing frontend dependencies ',true)
+        toolbox.loader = infoLoader('Installing frontend dependencies')
         await run(`npm install --silent`,{ 
           cwd: frontend_path
         }).catch(err=>{
@@ -124,7 +128,7 @@ const command = {
         })
         toolbox.loader.succeed()
       }
-      toolbox.loader = info('Building frontend to dist/src/public ',true)
+      toolbox.loader = infoLoader('Building frontend to dist/src/public')
       await run(`ng build --configuration=production --output-path=${path.relative(frontend_path,path.join(build_dir,"src/public"))}`,{ 
         cwd: frontend_path
       }).catch(err=>{
@@ -135,7 +139,7 @@ const command = {
       })
       toolbox.loader.succeed()
 
-      toolbox.loader = info('Generating new server file ',true)
+      toolbox.loader = infoLoader('Generating new server file')
       await generate({
         template: 'buildForProd/server.js.ejs',
         target: `${path.join(build_dir,"src/server.js")}`,
@@ -147,7 +151,11 @@ const command = {
       await patch(path.join(build_dir,"src/server.js"), { insert: dirnameString, after: "import fs from 'fs';"})
       toolbox.loader.succeed()
 
-      info('Build finished !')
+      let action = "CREATE"
+      if(buildExist){
+       action = "UPDATE"
+      }
+      updateFileSystem(toolbox,build_dir,action)
     }
   }
   

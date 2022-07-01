@@ -1,3 +1,4 @@
+const updateFileSystem = require('../extensions/utils/updateFileSystem')
 const command = {
     name: 'doc',
     alias:[],
@@ -6,21 +7,17 @@ const command = {
     description : "Build the documentation for the frontend",
     run: async toolbox => {
       const {
-        project_def,
+        project : {
+          frontend_path
+        },
         parameters : {options},
-        filesystem : {read},
         system : {run,spawn},
-        path,
-        prints : {info,error,log},
+        prints : {info,log,infoLoader},
+        filesystem : {exists},
+        path
       } = toolbox
 
-      // Get the project defintion as json
-      
-      const def_content = read(project_def,"json")
-      const root_dir = path.dirname(project_def)
-      const frontend_path = path.join(root_dir,def_content.projects.frontend_path)
-
-      toolbox.loader = info('Generating documentation ',true)
+      toolbox.loader = infoLoader('Generating documentation')
       let generate_doc = await run(`npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend`,{ 
         cwd: frontend_path
       })
@@ -30,18 +27,19 @@ const command = {
       generate_doc = generate_doc.split("\n")
       log(generate_doc[generate_doc.length-2]);
       
-      
+      const docPath = path.join(frontend_path,"documentation")
+      let action = "CREATE"
+      if(exists(docPath))
+        action = "UPDATE"
+      updateFileSystem(toolbox,docPath,action)
+
       if(options.s || options.serve)
       {
-        info('Serving documentation ')
-        let serve = await spawn(`cd ${frontend_path} && npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend -s`,{
+        info('Serving documentation')
+        await spawn(`cd ${frontend_path} && npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend -s`,{
           shell:true,
           stdio : "inherit"
         });
-        if(serve.error){
-          error(error.toString())
-          return undefined;
-        }
       }
     }
   }

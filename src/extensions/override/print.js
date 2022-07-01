@@ -21,15 +21,18 @@ function getOra() {
 const oras = getOra()
 const chalks = getChalk()
 
-function info(message,loader = false){
-  if(loader){
-    return oras({prefixText:chalks.blue.bold(message)}).start()
-  }else{
-    return console.log(chalks.blue.bold(message))
-  }
+function info(message){
+  return console.log(chalks.blue.bold(message))
+}
+function infoLoader(message,loaderOptions = {}){
+  loaderOptions = {prefixText:chalks.blue.bold(`${message} `),...loaderOptions}
+  return oras(loaderOptions).start()
 }
 function error(message){
   console.log(chalks.red.bold(message))
+}
+function warn(message){
+  console.log(chalks.yellow.bold(message))
 }
 function log(message){
     console.log(message)
@@ -38,6 +41,8 @@ function log(message){
 module.exports = {
   chalk : chalks,
   info,
+  infoLoader,
   log,
-  error
+  error,
+  warn
 }

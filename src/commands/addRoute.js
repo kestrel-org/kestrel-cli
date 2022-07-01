@@ -18,16 +18,19 @@ const command = {
   run: async toolbox => {
     const {
       parameters,
-      prints : {info,error,chalk,log},
-      filesystem: { read, exists, separator, writeAsync },
+      prints : {infoLoader,error, warn},
+      filesystem: { exists, separator},
+      template : {saveLog},
       prompts,
       strings : {upperFirst},
       path,
-      project_def
+      project : {
+        backend_path,
+        frontend_path
+      }
     } = toolbox
   
     // Get the project defintion as json
-    const def_content = read(project_def,"json")
 
     const pattern = /^([-_A-z]+\/)*[-_A-z]{3,}$/g
 
@@ -55,7 +58,7 @@ const command = {
     
     // All paths to needed files such as the project routes folder
 
-    const src = path.join(path.dirname(project_def),def_content.projects.backend_path,"src/")
+    const src = path.join(backend_path,"src/")
     const routes_folder = path.join(src,"routes")
     const models_folder = path.join(src,"models")
 
@@ -65,21 +68,19 @@ const command = {
 
     // Front paths
     const service_name = path.basename(router_file)
-    const front_src = path.join(path.dirname(project_def),def_content.projects.frontend_path || "","src")
+    const front_src = path.join(frontend_path || "","src")
     const services_path = path.join(front_src,"app/services")
     const service_path = path.join(services_path,service_name,service_name)
 
-    const root_dir = path.dirname(project_def)
-    const backend_path = path.join(root_dir,def_content.projects.backend_path)
     const tests_path = path.join(backend_path,"tests")
   
-    require('dotenv').config({ path: path.join(path.dirname(project_def),def_content.projects.backend_path,".env") })
+    require('dotenv').config({ path: path.join(backend_path,".env") })
     const database = await import(url.pathToFileURL(path.join(models_folder,"index.js")))
    
     // Check if router already exist
 
     if (exists(router_file_path)) {
-      error(`A router named ${router_file} already exists !`)
+      warn(`A router named ${router_file} already exists !`)
       const overwr = await prompts.confirm('Overwrite ?')
       if (!overwr) {
         return undefined
@@ -104,7 +105,7 @@ const command = {
       service_path
     }
 
-    const responses = await prompts.any(getPrompts(toolbox, def_content, router_name, models, questionsPaths));
+    const responses = await prompts.any(getPrompts(toolbox, router_name, models, questionsPaths));
 
     // Build router from template
 
@@ -147,14 +148,14 @@ const command = {
     
     //  Modify routes.js file
 
-    const {new_routes,update} = updateRoutes(routes.default,router_name,Object.fromEntries(Object.entries(responses).slice(0,3)))
+    const new_routes = updateRoutes(routes.default,router_name,Object.fromEntries(Object.entries(responses).slice(0,3)))
 
-    toolbox.loader = info(chalk.blue.bold('Adding router to the routes'),true)
-    await writeAsync(path.join(routes_folder,"routes.js"),"export default " + util.inspect(new_routes))
+    toolbox.loader = infoLoader('Adding router to the routes')
+    await saveLog.write({
+      target : path.join(routes_folder,"routes.js"),
+      content : "export default " + util.inspect(new_routes)
+    })
     toolbox.loader.succeed()
-    
-    info(chalk.blue.bold(`Router ${update ? "updated" : "created"} : `) + chalk.white.bold(`${router_name}.js`));
-    
   }
 }
 

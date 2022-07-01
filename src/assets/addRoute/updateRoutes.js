@@ -13,6 +13,6 @@ function updateRoutes(routes,router_name,responses){
     if(!update){
         new_routes.push(responses)
     } 
-    return {new_routes,update}
+    return new_routes
 }
 module.exports = updateRoutes

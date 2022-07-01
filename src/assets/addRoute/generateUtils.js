@@ -9,11 +9,11 @@ const path = require('path')
 async function generateTestFile(toolbox,props,file_path){
     let promise = new Promise(async (resolve, reject) => {
         const {
-            prints : {chalk,info},
-            template : {generate},
+            prints : {infoLoader},
+            template : {saveLog},
         } = toolbox;
-        toolbox.loader = info(chalk.blue.bold('Generating test file'),true)
-        await generate({
+        toolbox.loader = infoLoader('Generating test file')
+        await saveLog.generate({
             template: `addRoute/${props.model ? 'tests' : 'tests.example'}.ejs`,
             target: `${file_path}`,
             props: props,
@@ -29,12 +29,12 @@ async function generateTestFile(toolbox,props,file_path){
 function generateSwaggerFile(toolbox,props,file_path){
     let promise = new Promise(async (resolve, reject) => {
         const {
-            prints : {chalk,info},
-            template : {generate},
+            prints : {infoLoader},
+            template : {saveLog},
         } = toolbox;
         
-        toolbox.loader = info(chalk.blue.bold('Generating swagger file'),true)
-        await generate({
+        toolbox.loader = infoLoader('Generating swagger file')
+        await saveLog.generate({
             template: `swagger/swagger_model.js.ejs`,
             target: `${file_path}`,
             props: props,
@@ -51,11 +51,11 @@ function generateSwaggerFile(toolbox,props,file_path){
 async function generateRouterFile(toolbox,props,model,file_path){
     let promise = new Promise(async (resolve, reject) => {
         const {
-            prints : {chalk,info},
-            template : {generate},
+            prints : {infoLoader},
+            template : {saveLog},
         } = toolbox;
-        toolbox.loader = info(chalk.blue.bold('Generating router file'),true)
-        await generate({
+        toolbox.loader = infoLoader('Generating router file')
+        await saveLog.generate({
           template: `addRoute/${model ? "crud" : "example"}.ejs`,
           target: `${file_path}`,
           props: props,
@@ -71,12 +71,12 @@ async function generateRouterFile(toolbox,props,model,file_path){
 async function generateServiceFiles(toolbox,props,model,{service_path,front_src,service_name}){
     let promise = new Promise(async (resolve, reject) => {
         const {
-            prints : {chalk,info},
-            template : {generate},
+            prints : {infoLoader},
+            template : {saveLog},
         } = toolbox;
         // Generate the properties to render the file from the template
 
-        toolbox.loader = info(chalk.blue.bold('Generating service file'),true)
+        toolbox.loader = infoLoader('Generating service file')
         const properties_to_remove = [props.model_id,"createdAt","updatedAt"]
 
         props.model_name = upperFirst(model)
@@ -92,10 +92,10 @@ async function generateServiceFiles(toolbox,props,model,{service_path,front_src,
         // Generate the service files
 
         generators = service_files.reduce((res, file) => {
-            const generator = generate({
-            template: `addRoute/service/${model ? "crud" : "example"}.${file}.ejs`,
-            target: `${service_path}.${file}.ts`,
-            props: props,
+            const generator = saveLog.generate({
+                template: `addRoute/service/${model ? "crud" : "example"}.${file}.ejs`,
+                target: `${service_path}.${file}.ts`,
+                props: props,
             }).catch((err)=>{error(err);return undefined})
             return res.concat(generator)
         }, generators)

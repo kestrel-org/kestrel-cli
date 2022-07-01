@@ -1,7 +1,8 @@
 const back_files = require('../assets/back_files')
 const front_files = require('../assets/front_files')
 const main_files = require('../assets/main_files')
-const git = require('git-promise');
+const simpleGit = require('simple-git');
+simpleGit().clean(simpleGit.CleanOptions.FORCE);
 
 const command = {
   name: 'new',
@@ -11,14 +12,14 @@ const command = {
   run: async toolbox => {
     const {
       parameters,
-      prints: { info, error, chalk },
+      prints: { infoLoader, error,  warn },
       strings: { kebabCase },
-      filesystem: { exists, removeAsync, copyAsync, cwd, separator },
+      filesystem: { exists, removeAsync, cwd },
       prompts,
       path,
       meta: { version },
-      system: { run },
-      template: { generate }
+      system: { run , spawn},
+      template: {saveLog},
     } = toolbox
 
     //  set up initial props (to pass into templates)
@@ -67,12 +68,12 @@ const command = {
     }
 
     if (exists(props.name)) {
-      error(`A directory named ${props.name} already exists !`)
+      warn(`A directory named ${props.name} already exists !`)
       const overwrite = await prompts.confirm('Overwrite ?')
       if (!overwrite) {
         return undefined
       }
-      toolbox.loader = info('Removing directory', true)
+      toolbox.loader = infoLoader('Removing directory')
       await removeAsync(props.name)
       toolbox.loader.succeed()
     }
@@ -89,89 +90,59 @@ const command = {
             }
           }
 
-          await git(`clone https://github.com/ngx-template/ngx-template.git ${__dirname}/../templates/angular-node`)
+          await simpleGit().clone('https://github.com/ngx-template/ngx-template.git',`${__dirname}/../templates/angular-node`)
           await run("node " + __dirname + "/../utils/convertToTemplate.js")
           resolve(true)
         } catch (err) {
+          toolbox.loader.fail()
           error(`The download of the github repository has failed.`)
           resolve(false)
         }
       });
     }
 
-    toolbox.loader = info('Downloading template', true)
+    toolbox.loader = infoLoader('Downloading template')
     const isDownloaded = await downloadTemplate()
 
-    if (!isDownloaded) {
+    if (!isDownloaded) 
       process.exit(0)
-    } else {
-      toolbox.loader.succeed()
-      toolbox.loader = info('Copying directory', true)
-      await copyAsync(__dirname + '/../templates/angular-node/' + toCreate, cwd() + separator + props.name, {
+    
+    toolbox.loader.succeed()
+    toolbox.loader = infoLoader('Copying directory')
+    await saveLog.copy({
+      from : __dirname + '/../templates/angular-node/' + toCreate, 
+      target : props.name, 
+      options : {
         overwrite: true,
         matching: [
           './!(.github|.git|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md|*.ejs)',
           './!(.github|.git)/**/!(*.ejs)'
         ]
-      })
-      toolbox.loader.succeed()
-
-      let generators = []
-      toolbox.loader = info('Generating templates', true)
-      for (let files of templateFiles) {
-        generators = files.toTransform.reduce((res, file) => {
-          const generator = generate({
-            template: `${file.path + file.filename}.ejs`,
-            target: `${props.name}/${(single ? file.createPath : file.part) + file.filename.replace('.ejs', '')}`,
-            props: props,
-          }).catch((err) => { error(err); return undefined })
-          return res.concat(generator)
-        }, generators)
       }
-      await Promise.all(generators)
-      toolbox.loader.succeed()
+    })
+    toolbox.loader.succeed()
 
-      let installs = [];
-      toolbox.loader = info('Installing dependencies', true)
-      const cwf = path.join(cwd(), props.name)
-      if (single) {
-        installs.push(
-          run(`npm install`, {
-            cwd: cwf
-          }).catch(err => {
-            toolbox.loader.fail()
-            error(err)
-            error(err.stdout)
-            error(err.stderr)
-            process.exit(0)
-          })
-        )
-      } else {
-        installs.push(
-          run(`npm install`, {
-            cwd: path.join(cwf, "backend")
-          }).catch(err => {
-            toolbox.loader.fail()
-            error(err)
-            error(err.stdout)
-            error(err.stderr)
-            process.exit(0)
-          }),
-          run(`npm install`, {
-            cwd: path.join(cwf, "frontend")
-          }).catch(err => {
-            toolbox.loader.fail()
-            error(err)
-            error(err.stdout)
-            error(err.stderr)
-            process.exit(0)
-          })
-        )
-      }
-      await Promise.all(installs)
-      toolbox.loader.succeed()
-      info(`Project ${chalk.white.bold(props.name)} created ! `)
+    let generators = []
+    toolbox.loader = infoLoader('Generating templates')
+    for (let files of templateFiles) {
+      generators = files.toTransform.reduce((res, file) => {
+        const generator = saveLog.generate({
+          template: `${file.path + file.filename}.ejs`,
+          target: `${props.name}/${(single ? file.createPath : file.part) + file.filename.replace('.ejs', '')}`,
+          props: props,
+        })
+        return res.concat(generator)
+      }, generators)
     }
+    await Promise.all(generators)
+    toolbox.loader.succeed()
+    toolbox.loader = null
+
+    const cwf = path.join(cwd(), props.name)
+    await spawn(`kc id`,{ 
+      cwd: cwf,
+      stdio : 'inherit'
+    })
   }
 }
 module.exports = command

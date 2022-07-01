@@ -1,26 +1,22 @@
-const asyncForEach = require('../utils/asyncForEach')
-
 const command = {
   name: 'database',
   alias:['db'],
   scope : "in",
   needs : ["backend"],
+  foldersToWatch : {backend : ["src/models","src/seeders","src/migrations"]},
   description : "Generate commands based on sequelize instructions",
   run: async toolbox => {
     const {
-      system : {run},
-      prints:  {log,info,error},
+      template : {saveLog},
+      prints:  {log,infoLoader,error},
       strings : {upperCase,lowerCase},
-      filesystem : {read,renameAsync,listAsync},
       parameters : {first,options},
       path,
-      project_def,
+      project : {
+        backend_path
+      },
 
     } = toolbox
-    // Get the project defintion as json
-    const def_content = read(project_def,"json")
-    const root_dir = path.dirname(project_def)
-    const backend_path = path.join(root_dir,def_content.projects.backend_path)
 
     let sqlz_cmd;
     let command_name;
@@ -85,51 +81,10 @@ const command = {
       sqlz_cmd = `npx sequelize-cli ${command} ${options_str.join(" ")}`
       command_name = `${command} ${options_str.join(" ")}`
     }
-    toolbox.loader = info(`Running sequelize command : ${command_name} `,true)
-    let sequelize_cmd = await run(`${sqlz_cmd}`,{
+    toolbox.loader = infoLoader(`Running sequelize command : ${command_name}`)
+    let sequelize_cmd = await saveLog.run(`${sqlz_cmd}`,{
       cwd : backend_path
     })
-
-    const modelsPath = path.join(backend_path,"src/models")
-    const migrationsPath = path.join(backend_path,"src/migrations")
-    const seedersPath = path.join(backend_path,"src/seeders")
-
-    const [models,migrations,seeders] = await Promise.all([
-      listAsync(modelsPath),
-      listAsync(migrationsPath),
-      listAsync(seedersPath)
-    ])
-
-    await Promise.all([
-
-      asyncForEach(models,async (file)=>{
-        if(file==="index.js" || file.slice(-4)===".cjs") return;
-        return await renameAsync(
-          path.join(modelsPath,file),
-          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-          {overwrite : true}
-        )
-      }),
-
-      asyncForEach(migrations,async (file)=>{
-        if(file.slice(-4)===".cjs") return;
-        return await renameAsync(
-          path.join(migrationsPath,file),
-          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-          {overwrite : true}
-        )
-      }),
-
-      asyncForEach(seeders,async (file)=>{
-        if(file.slice(-4)===".cjs") return;
-        return await renameAsync(
-          path.join(seedersPath,file),
-          `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-          {overwrite : true}
-        )
-      })
-    ])
-    
     toolbox.loader.succeed()
     log(sequelize_cmd)
 

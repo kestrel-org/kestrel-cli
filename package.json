@@ -27,11 +27,12 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
     "dotenv": "^16.0.1",
-    "git-promise": "^1.0.0",
     "gluegun": "^5.1.2",
     "ora": "^5.4.1",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "simple-git": "^3.10.0"
   },
   "overrides": {
     "gluegun": {

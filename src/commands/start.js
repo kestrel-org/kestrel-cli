@@ -8,13 +8,13 @@ const command = {
     description : "Run the backend and the frontend",
     run: async toolbox => {
       const {
-        filesystem : {read},
-        path,
-        project_def,
+        project : {
+          def_content,
+          backend_path,
+          frontend_path
+        },
       } = toolbox
 
-      const def_content = read(project_def,"json")
-      const root_dir = path.dirname(project_def)
       const projects = {
         back : null,
         front : null
@@ -23,7 +23,7 @@ const command = {
         projects.back = spawn(`npm start`,{ 
           shell:true,
           stdio : 'inherit',
-          cwd : path.join(root_dir,def_content.projects.backend_path),
+          cwd : backend_path,
           detached : true
         })
       }
@@ -31,7 +31,7 @@ const command = {
         projects.front = spawn(`npm start`,{ 
           shell:true,
           stdio : 'inherit',
-          cwd : path.join(root_dir,def_content.projects.frontend_path),
+          cwd : frontend_path,
           detached : true
         })
       }

@@ -1,25 +1,24 @@
 const path = require('path')
-const asyncForEach = require('../utils/asyncForEach')
 const command = {
     name: 'initdb',
     alias:['idb'],
     scope : "in",
     needs : ["backend"],
+    foldersToWatch : {backend : ["src/models","src/seeders","src/migrations"]},
     description : "Init database with fake data.",
     run: async toolbox => {
       const {
-        project_def,
+        project : {
+          backend_path
+        },
         parameters,
-        filesystem : {read,renameAsync,listAsync},
         strings : {upperCase,lowerCase},
-        system: {run},
-        prints : {info,error,log},
+        prints : {info,infoLoader,error,log},
+        template: {saveLog},
+        system : {run}
       } = toolbox
     
       // Get the project defintion as json
-      const def_content = read(project_def,"json")
-      const root_dir = path.dirname(project_def)
-      const backend_path = path.join(root_dir,def_content.projects.backend_path)
 
       require('dotenv').config({ path: path.join(backend_path,".env") })
 
@@ -50,76 +49,35 @@ const command = {
       info('---- Database Initialization ----')
       
       
-      toolbox.loader = info('Database removal ',true)
+      toolbox.loader = infoLoader('Database removal')
       let db_removal = await run(`npx sequelize-cli db:drop --env ${env}`,{ 
         cwd: backend_path
       })
       toolbox.loader.succeed()
       log(db_removal);
 
-      toolbox.loader = info('Database generation ',true)
+      toolbox.loader = infoLoader('Database generation')
       let db_gen = await run(`npx sequelize-cli db:create --env ${env}`,{ 
         cwd: backend_path
       })
       toolbox.loader.succeed()
       log(db_gen);
 
-      toolbox.loader = info('Tables generation ',true)
+      toolbox.loader = infoLoader('Tables generation')
       let tables_gen = await run(`npx sequelize-cli db:migrate --env ${env}`,{ 
         cwd: backend_path
       })
       toolbox.loader.succeed()
       log(tables_gen);
 
-      toolbox.loader = info('Models generation ',true)
-      let models_gen = await run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`,{ 
+      toolbox.loader = infoLoader('Models generation')
+      let models_gen = await saveLog.run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`,{ 
         cwd: backend_path
       })
-
-      const modelsPath = path.join(backend_path,"src/models")
-      const migrationsPath = path.join(backend_path,"src/migrations")
-      const seedersPath = path.join(backend_path,"src/seeders")
-
-      const [models,migrations,seeders] = await Promise.all([
-        listAsync(modelsPath),
-        listAsync(migrationsPath),
-        listAsync(seedersPath)
-      ])
-
-      await Promise.all([
-
-        asyncForEach(models,async (file)=>{
-          if(file==="index.js" || file.slice(-4)===".cjs") return;
-          return await renameAsync(
-            path.join(modelsPath,file),
-            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-            {overwrite : true}
-          )
-        }),
-
-        asyncForEach(migrations,async (file)=>{
-          if(file.slice(-4)===".cjs") return;
-          return await renameAsync(
-            path.join(migrationsPath,file),
-            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-            {overwrite : true}
-          )
-        }),
-
-        asyncForEach(seeders,async (file)=>{
-          if(file.slice(-4)===".cjs") return;
-          return await renameAsync(
-            path.join(seedersPath,file),
-            `${file.slice(0,file.lastIndexOf("."))}.cjs`,
-            {overwrite : true}
-          )
-        })
-      ])
-
       toolbox.loader.succeed()
       log(models_gen);
 
-      toolbox.loader = info('Data insertion ',true)
+      toolbox.loader = infoLoader('Data insertion')
       let data_gen = await run(`npx sequelize-cli db:seed:all --env ${env}`,{ 
         cwd: backend_path
       })
