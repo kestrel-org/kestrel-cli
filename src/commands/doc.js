@@ -1,4 +1,3 @@
-const updateFileSystem = require('../extensions/utils/updateFileSystem')
 const command = {
     name: 'doc',
     alias:[],
@@ -14,24 +13,20 @@ const command = {
         system : {run,spawn},
         prints : {info,log,infoLoader},
         filesystem : {exists},
+        template : {saveLog},
         path
       } = toolbox
-
+      const docPath = path.join(frontend_path,"documentation")
       toolbox.loader = infoLoader('Generating documentation')
-      let generate_doc = await run(`npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend`,{ 
-        cwd: frontend_path
+      let generate_doc = await saveLog.run(`npx compodoc -p src/tsconfig.compodoc.json -n Template-Frontend`,{ 
+        cwd: frontend_path,
+        target : docPath
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       toolbox.loader = null
 
       generate_doc = generate_doc.split("\n")
       log(generate_doc[generate_doc.length-2]);
-      
-      const docPath = path.join(frontend_path,"documentation")
-      let action = "CREATE"
-      if(exists(docPath))
-        action = "UPDATE"
-      updateFileSystem(toolbox,docPath,action)
 
       if(options.s || options.serve)
       {

@@ -20,7 +20,7 @@ module.exports = toolbox => {
       if(!command.sigint){
         process.on('SIGINT', async () => {
           if(toolbox.loader != null){
-            toolbox.loader.fail()
+            await toolbox.loader.fail()
           }
           if(toolbox.hasOwnProperty("nodeModulesCancel")){
             await cancelNode(toolbox,toolbox.nodeModulesCancel)
@@ -48,7 +48,7 @@ module.exports = toolbox => {
       })
       process.on("uncaughtException",async (err)=>{
         if(toolbox.loader != null){
-          toolbox.loader.fail()
+          await toolbox.loader.fail()
           toolbox.loader = null
         }
         error(`Error : ${err.stack}`)

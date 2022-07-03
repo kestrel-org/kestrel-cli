@@ -75,7 +75,7 @@ const command = {
       }
       toolbox.loader = infoLoader('Removing directory')
       await removeAsync(props.name)
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
     }
 
     // get NGX-TEMPLATE from github repository
@@ -94,7 +94,7 @@ const command = {
           await run("node " + __dirname + "/../utils/convertToTemplate.js")
           resolve(true)
         } catch (err) {
-          toolbox.loader.fail()
+          await toolbox.loader.fail()
           error(`The download of the github repository has failed.`)
           resolve(false)
         }
@@ -102,12 +102,12 @@ const command = {
     }
 
     toolbox.loader = infoLoader('Downloading template')
+    
     const isDownloaded = await downloadTemplate()
-
     if (!isDownloaded) 
       process.exit(0)
     
-    toolbox.loader.succeed()
+    await toolbox.loader.succeed()
     toolbox.loader = infoLoader('Copying directory')
     await saveLog.copy({
       from : __dirname + '/../templates/angular-node/' + toCreate, 
@@ -120,7 +120,7 @@ const command = {
         ]
       }
     })
-    toolbox.loader.succeed()
+    await toolbox.loader.succeed()
 
     let generators = []
     toolbox.loader = infoLoader('Generating templates')
@@ -135,7 +135,7 @@ const command = {
       }, generators)
     }
     await Promise.all(generators)
-    toolbox.loader.succeed()
+    await toolbox.loader.succeed()
     toolbox.loader = null
 
     const cwf = path.join(cwd(), props.name)

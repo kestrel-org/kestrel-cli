@@ -41,12 +41,16 @@ class SaveFiles {
             }
             const dir = args.slice(-1).pop().target.replace(/$(\/)*/g, '')
             const overwrite = await scope.toolbox.filesystem.existsAsync(dir)
-            
+
             let action = "CREATE"
 
-            if(overwrite)
+            const providedAction = args.slice(-1).pop().action
+            if(providedAction!==null){
+                action = providedAction ? "UPDATE" : action
+            }
+            else if(overwrite){
                 action = "UPDATE"
-        
+            }
         
             // here we bind method with our class by accessing reference to instance
             const results = await target.bind(this.main)(...args);

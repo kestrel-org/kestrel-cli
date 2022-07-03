@@ -85,7 +85,7 @@ const command = {
     let sequelize_cmd = await saveLog.run(`${sqlz_cmd}`,{
       cwd : backend_path
     })
-    toolbox.loader.succeed()
+    await toolbox.loader.succeed()
     log(sequelize_cmd)
 
   }

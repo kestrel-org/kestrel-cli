@@ -1,4 +1,4 @@
-const SaveFiles = require("../utils/saveFiles")
+const SaveFiles = require("./saveFiles")
 const renameDbFiles = require('../../assets/database/renameToCjs')
 
 class Save extends SaveFiles{
@@ -17,7 +17,7 @@ class Save extends SaveFiles{
   async write({target,content}){
     await this.toolbox.filesystem.writeAsync(target,content)
   }
-  async run(command,options){
+  async run(command,{target=null,action=null,...options}){
     const isDbCommand = this.isDbCommand()
     const output = await this.toolbox.system.run(command,options)
     if(isDbCommand){

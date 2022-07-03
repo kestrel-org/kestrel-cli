@@ -29,8 +29,6 @@ const command = {
         frontend_path
       }
     } = toolbox
-  
-    // Get the project defintion as json
 
     const pattern = /^([-_A-z]+\/)*[-_A-z]{3,}$/g
 
@@ -155,7 +153,7 @@ const command = {
       target : path.join(routes_folder,"routes.js"),
       content : "export default " + util.inspect(new_routes)
     })
-    toolbox.loader.succeed()
+    await toolbox.loader.succeed()
   }
 }
 

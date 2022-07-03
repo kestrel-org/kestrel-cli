@@ -1,6 +1,6 @@
 const util = require('util')
 const url = require('url')
-const updateFileSystem = require('../extensions/utils/updateFileSystem')
+
 const command = {
     name: 'build',
     alias:[],
@@ -19,7 +19,7 @@ const command = {
         system : {run},
         prompts,
         patching : {patch},
-        template : {generate},
+        template : {generate,saveLog},
         path,
       } = toolbox
       
@@ -80,7 +80,7 @@ const command = {
         buildExist = true
         toolbox.loader = infoLoader("Deleting previous build directory");
         await removeAsync(build_dir)
-        toolbox.loader.succeed();
+        await toolbox.loader.succeed();
       }
       toolbox.loader = infoLoader('Copying backend to dist')
       await copyAsync(backend_path, build_dir, {
@@ -96,7 +96,7 @@ const command = {
       delete packageJson.nodemonConfig;
       await writeAsync(`${path.join(build_dir,"package.json")}`,JSON.stringify(packageJson,null,2))
 
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       toolbox.loader = infoLoader('Installing backend dependencies')
       await run(`npm install --silent`,{ 
         cwd: build_dir
@@ -106,7 +106,7 @@ const command = {
         error(err.stderr)
         process.exit(0);
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
 
       toolbox.loader = infoLoader('Update app.js for production')
       let dirnameString = "import * as url from 'url';\nimport path from 'path';\nconst __dirname = path.dirname(url.fileURLToPath(import.meta.url))\n"
@@ -114,30 +114,32 @@ const command = {
       await patch(path.join(build_dir,"src/app.js"), { insert: angularStr, before: "// catch 404" })
       await patch(path.join(build_dir,"src/app.js"), { insert: dirnameString, before: "const app = express();"})
       await dirAsync(path.join(build_dir,"src/public"))
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
 
       if(!exists(path.join(frontend_path,"node_modules"))){
         toolbox.loader = infoLoader('Installing frontend dependencies')
         await run(`npm install --silent`,{ 
           cwd: frontend_path
-        }).catch(err=>{
-          toolbox.loader.fail()
+        }).catch(async err=>{
+          await toolbox.loader.fail()
           error(err.stdout)
           error(err.stderr)
           process.exit(0);
         })
-        toolbox.loader.succeed()
+        await toolbox.loader.succeed()
       }
       toolbox.loader = infoLoader('Building frontend to dist/src/public')
-      await run(`ng build --configuration=production --output-path=${path.relative(frontend_path,path.join(build_dir,"src/public"))}`,{ 
-        cwd: frontend_path
-      }).catch(err=>{
-        toolbox.loader.fail()
+      await saveLog.run(`ng build --configuration=production --output-path=${path.relative(frontend_path,path.join(build_dir,"src/public"))}`,{ 
+        cwd: frontend_path,
+        target : build_dir,
+        action : buildExist
+      }).catch(async err=>{
+        await toolbox.loader.fail()
         error(err.stdout)
         error(err.stderr)
         process.exit(0);
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
 
       toolbox.loader = infoLoader('Generating new server file')
       await generate({
@@ -149,13 +151,7 @@ const command = {
         },
       })
       await patch(path.join(build_dir,"src/server.js"), { insert: dirnameString, after: "import fs from 'fs';"})
-      toolbox.loader.succeed()
-
-      let action = "CREATE"
-      if(buildExist){
-       action = "UPDATE"
-      }
-      updateFileSystem(toolbox,build_dir,action)
+      await toolbox.loader.succeed()
     }
   }
   

@@ -47,14 +47,14 @@ const command = {
             await run(`npm install`,{ 
               cwd: directories[dir]
             })
-            toolbox.loader.succeed()
+            await toolbox.loader.succeed()
             toolbox.nodeModulesCancel.update = false
             toolbox.nodeModulesCancel.path = undefined
           }
           catch (err){
             installErrors = true
             if(toolbox.loader != null){
-              toolbox.loader.fail()
+              await toolbox.loader.fail()
               toolbox.loader = null
             }
             error(`Error : ${err.stack}`)

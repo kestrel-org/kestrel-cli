@@ -18,7 +18,7 @@ async function generateTestFile(toolbox,props,file_path){
             target: `${file_path}`,
             props: props,
         })
-        toolbox.loader.succeed()
+        await toolbox.loader.succeed()
         resolve();
     });
     return promise;
@@ -39,7 +39,7 @@ function generateSwaggerFile(toolbox,props,file_path){
             target: `${file_path}`,
             props: props,
         })
-        toolbox.loader.succeed()
+        await toolbox.loader.succeed()
         
         resolve();
     });
@@ -60,7 +60,7 @@ async function generateRouterFile(toolbox,props,model,file_path){
           target: `${file_path}`,
           props: props,
         })
-        toolbox.loader.succeed()
+        await toolbox.loader.succeed()
         resolve();
     });
     return promise;
@@ -100,7 +100,7 @@ async function generateServiceFiles(toolbox,props,model,{service_path,front_src,
             return res.concat(generator)
         }, generators)
         await Promise.all(generators)
-        toolbox.loader.succeed()
+        await toolbox.loader.succeed()
         resolve();
     });
     return promise;

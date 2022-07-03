@@ -18,8 +18,6 @@ const command = {
         system : {run}
       } = toolbox
     
-      // Get the project defintion as json
-
       require('dotenv').config({ path: path.join(backend_path,".env") })
 
       let env = upperCase(parameters.first) || "DEV";
@@ -53,35 +51,35 @@ const command = {
       let db_removal = await run(`npx sequelize-cli db:drop --env ${env}`,{ 
         cwd: backend_path
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       log(db_removal);
 
       toolbox.loader = infoLoader('Database generation')
       let db_gen = await run(`npx sequelize-cli db:create --env ${env}`,{ 
         cwd: backend_path
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       log(db_gen);
 
       toolbox.loader = infoLoader('Tables generation')
       let tables_gen = await run(`npx sequelize-cli db:migrate --env ${env}`,{ 
         cwd: backend_path
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       log(tables_gen);
 
       toolbox.loader = infoLoader('Models generation')
       let models_gen = await saveLog.run(`node node_modules/sequelize-auto/bin/sequelize-auto -o \"./src/models\" -d ${process.env[env_vars[0]]} -h localhost -u ${process.env[env_vars[1]]} -p 3306 -x ${process.env[env_vars[2]]} -e mysql --skipTables sequelizemeta --noInitModels`,{ 
         cwd: backend_path
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       log(models_gen);
 
       toolbox.loader = infoLoader('Data insertion')
       let data_gen = await run(`npx sequelize-cli db:seed:all --env ${env}`,{ 
         cwd: backend_path
       })
-      toolbox.loader.succeed()
+      await toolbox.loader.succeed()
       log(data_gen);
 
       info('Database initialized !')

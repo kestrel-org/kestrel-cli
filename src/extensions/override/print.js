@@ -12,7 +12,7 @@ function getChalk() {
 function getOra() {
   if (ora) return ora
 
-  const Ora = require('ora');
+  const Ora = require('../loader/worker')
   ora = Ora;
 
   return ora
@@ -20,13 +20,15 @@ function getOra() {
 
 const oras = getOra()
 const chalks = getChalk()
-
 function info(message){
   return console.log(chalks.blue.bold(message))
 }
+
 function infoLoader(message,loaderOptions = {}){
   loaderOptions = {prefixText:chalks.blue.bold(`${message} `),...loaderOptions}
-  return oras(loaderOptions).start()
+  const loader = new oras(loaderOptions)
+  loader.start()
+  return loader
 }
 function error(message){
   console.log(chalks.red.bold(message))
