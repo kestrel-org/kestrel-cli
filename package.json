@@ -1,5 +1,5 @@
 {
-  "name": "@kestrel/cli",
+  "name": "@kestrels/cli",
   "version": "2.10.2",
   "description": "kestrel CLI",
   "bin": {
