@@ -1,4 +1,4 @@
-# kli-cli
+# kestrel-cli
 
 A CLI for [kestrel](https://github.com/kestrel-org/kestrel).
 
