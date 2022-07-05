@@ -3,7 +3,7 @@ const main_files = {
         {
             path: 'new/',
             part: '',
-            filename: 'kli-cli.json',
+            filename: 'kestrel-cli.json',
             createPath: '',
             convert: false
         }

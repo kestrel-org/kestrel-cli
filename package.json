@@ -1,7 +1,7 @@
 {
-  "name": "kli-cli",
+  "name": "kestrel-cli",
   "version": "2.10.1",
-  "description": "kc CLI",
+  "description": "kestrel CLI",
   "bin": {
     "kc": "bin/kc"
   },
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ngx-template/kli-cli.git"
+    "url": "https://github.com/kestrel-org/kestrel-cli.git"
   },
   "license": "MIT",
   "dependencies": {

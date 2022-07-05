@@ -33,7 +33,7 @@ const command = {
       name: parameters.first,
       backend_path: "backend",
       frontend_path: "frontend",
-      kli_version: version()
+      kc_version: version()
     }
 
     let toCreate = ""
@@ -90,7 +90,7 @@ const command = {
             }
           }
 
-          await simpleGit().clone('https://github.com/ngx-template/ngx-template.git',`${__dirname}/../templates/angular-node`)
+          await simpleGit().clone('https://github.com/kestrel-org/kestrel.git',`${__dirname}/../templates/angular-node`)
           await run("node " + __dirname + "/../utils/convertToTemplate.js")
           resolve(true)
         } catch (err) {

@@ -1,10 +1,10 @@
-# kli-cli
+# kestrel-cli
 
-A CLI for [ngx-template](https://github.com/ngx-template/ngx-template).
+A CLI for [kestrel](https://github.com/kestrel-org/kestrel).
 
 ## Documentation
 
-We have a [gitbook](https://sflorent.gitbook.io/ngx-template/).
+We have a [gitbook](https://sflorent.gitbook.io/kestrel/).
 
 ## License
 
