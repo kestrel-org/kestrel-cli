@@ -1,0 +1,16 @@
+import { TestBed } from '@angular/core/testing';
+
+import { <%= props.service_name %> } from './<%= props.service_file_name %>';
+
+describe('<%= props.service_name %>', () => {
+  let service: <%= props.service_name %>;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(<%= props.service_name %>);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});

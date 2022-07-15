@@ -1,0 +1,77 @@
+import express from 'express';
+import models from '<%= props.path_to_model %>/index';
+const router = express.Router();
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *      User:
+ *          type: object
+ *          required:
+ *              - id
+ *              - login
+ *              - password
+ *              - email
+ *              - createdAt
+ *              - updatedAt
+ *          properties:
+ *              id:
+ *                  type: integer
+ *                  description: The auto-generated id of the user
+ *              login:
+ *                  type: string
+ *                  description: The login of the user
+ *              password:
+ *                  type: string
+ *                  description: The password of the user
+ *              email:
+ *                  type: string
+ *                  description: The email of the user
+ *              createdAt:
+ *                  type: string
+ *                  description: The creation date of the user
+ *              updatedAt:
+ *                  type: string
+ *                  description: The update date of the user
+ */
+
+ /**
+ * @swagger
+ *  tags:
+ *    name: '<%= props.path %>'
+ *    description: Return the users list
+ */
+
+ /**
+ * @swagger
+ *  /<%= props.path %>:
+ *    get:
+ *      description: Return the users list
+ *      tags: [<%= props.path %>]
+ *      responses:
+ *        200:
+ *          description: The users list
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/User'
+ *        400:
+ *          description: Bad request
+ *        401:
+ *          description: Unauthorized
+ */
+router.get('/', async function (req, res, next) {
+  try {
+    const users = await models['users'].findAll();
+    res.status(200).send({
+      users
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
+
+export default router;

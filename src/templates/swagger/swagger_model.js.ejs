@@ -1,0 +1,16 @@
+ /**
+ * @swagger
+ * components:
+ *  schemas:
+ *      <%= props.model_def %>:
+ *          type: object
+ *          required:
+ <% for(let property of props.model_properties){  -%>
+ *              - <%= property.fieldName %>
+ <%} -%>
+ *          properties:
+ <% for(let property of props.model_properties){  -%>
+ *              <%= property.fieldName %>:
+ *                  type: <%= property.type %>
+ <%} -%>
+ */

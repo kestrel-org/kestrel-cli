@@ -1,0 +1,11 @@
+{
+  "projects" : {
+<% if (props.backend_path != null) { -%>
+    "backend_path" : "<%= props.backend_path -%>"<% if (props.frontend_path != null) { %>,<% } %>
+<% } -%>
+  <% if (props.frontend_path != null) { -%>
+  "frontend_path" : "<%= props.frontend_path -%>"
+  <% } -%>
+},
+  "version" : "<%= props.kc_version -%>"
+}
