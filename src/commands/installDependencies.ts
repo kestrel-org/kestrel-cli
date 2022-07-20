@@ -1,7 +1,7 @@
-import {Command} from "@src/types/command";
-import Project from "@src/types/project";
+import {Command} from "@src/types/Command";
+import Project from "@src/types/Project";
 
-const newCommand : Command = {
+const idCommand : Command = {
     name : "install-dependencies",
     aliases : ["id"],
     scope : 'in',
@@ -10,14 +10,12 @@ const newCommand : Command = {
       const {
         project,
         fileSystem : {exists},
-        print : {infoLoader,error,warn},
+        print : {infoLoader,warn},
         prompts,  
         system : {run},
         path
       } = toolbox
 
-      console.log(options)
-      
       let directories : any = {
         backend_path : undefined,
         frontend_path : undefined
@@ -45,7 +43,7 @@ const newCommand : Command = {
         if(directories[dir]){
           toolbox.loader.start(infoLoader(`Installing ${path.basename(directories[dir])} dependencies`))
           
-          await run(`npm`,['install'],{ 
+          await run(`npm`,'install',{ 
             cwd: directories[dir]
           })
           await toolbox.loader.succeed()
@@ -54,5 +52,5 @@ const newCommand : Command = {
     }
   }
   
-export default newCommand
+export default idCommand
   

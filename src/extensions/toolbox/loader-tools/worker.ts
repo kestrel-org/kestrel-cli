@@ -4,12 +4,17 @@ import path from 'path';
 import url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
-
+/**
+ * @class Loader
+ * Creates a new ora loader to be used in the toolbox
+ */
 class Loader {
+    /**
+     * New child process to run the loader in
+     */
     worker? : ChildProcess
     /**
      * Start the loader
-     *
      * @param loaderOptions Ora loader Options
     */
     start(loaderOptions : Options = {}){
@@ -22,6 +27,7 @@ class Loader {
     }
     /**
      * Stop the loader, change it to a green `✔`
+     * @returns Promise<void>
     */
     succeed(){
         return new Promise<void>((resolve,reject)=>{
@@ -36,6 +42,7 @@ class Loader {
     }
     /**
      * Stop the loader, change it to a green `✖`
+     * @returns Promise<void>
     */
     fail(){
         return new Promise<void>((resolve,reject)=>{
@@ -49,5 +56,7 @@ class Loader {
         })
     }
 }
-
-export default Loader
+function buildLoader(){
+    return new Loader()
+}
+export {buildLoader,Loader}

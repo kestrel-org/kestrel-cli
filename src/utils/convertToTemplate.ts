@@ -13,7 +13,11 @@ const {
 } = toolbox
 
 
-
+/**
+ * Modify a file string
+ * @param file file to read
+ * @param replace object used to replace string by another
+ */
 async function modifyFile(file : any, replace: any) {
   return new Promise<void>((resolve, reject) => {
     fs.readFile(path.join(__dirname,'/../templates/',file.path,file.filename), 'utf8', function (err, data) {
@@ -32,6 +36,9 @@ async function modifyFile(file : any, replace: any) {
   });
 }
 
+/**
+ * Convert Kestrel Template files to templates usable by kestre-cli
+ */
 async function convert() {
   const f2convert = [
     back_files.toTransform,

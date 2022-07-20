@@ -1,20 +1,19 @@
 
+import { KcPrint } from '@src/types/toolbox/print-tools';
 import chalk from 'chalk';
 import { Options as OraOptions } from 'ora';
 
 /**
  * Log blue and bold message to the console
- *
  * @param message Message to print
 */
 
 function info(message : string){
-  return console.log(chalk.blue.bold(message))
+  console.log(chalk.blue.bold(message))
 }
 
 /**
  * Generate ora Options from message
- *
  * @param message Message to print
  * @param loaderOptions Ora options
  * @returns loaderOptions
@@ -26,7 +25,6 @@ function infoLoader(message : string,loaderOptions: OraOptions = {}) : OraOption
 
 /**
  * Log red and bold message to the console
- *
  * @param message Message to print
 */
 function error(message : string){
@@ -35,7 +33,6 @@ function error(message : string){
 
 /**
  * Log yellow and bold message to the console
- *
  * @param message Message to print
 */
 function warn(message : string){
@@ -44,18 +41,18 @@ function warn(message : string){
 
 /**
  * Log message to the console
- *
  * @param message Message to print
 */
-function log(message : string){
+function log(message : string | Error){
     console.log(message)
 }
 
-export default {
-  chalk,
+const print : KcPrint = {
   info,
   infoLoader,
-  log,
   error,
-  warn
+  warn,
+  log,
+  chalk
 }
+export {print,KcPrint}

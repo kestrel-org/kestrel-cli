@@ -1,16 +1,15 @@
-import { Options } from "@src/types/toolbox/generate-options";
+import { GenerateOptions, KcTemplate } from "@src/types/toolbox/template-tools";
 import ejs from 'ejs';
 import { Toolbox } from '@src/extensions/toolbox/toolbox.js';
 import { replace } from "./utils.js";
 
-function buildGenerate(toolbox: Toolbox): (opts: Options) => Promise<string> {
+function buildTemplate(toolbox: Toolbox): KcTemplate {
     /**
      * Render ejs templates
-     *
      * @param opts Options to generate
      * @return Rendered template content 
     */
-    async function generate(opts: Options): Promise<string> {
+    async function generate(opts: GenerateOptions): Promise<string> {
         const {
             meta : {directory},
             fileSystem : {isFile,read,path,write},
@@ -61,11 +60,11 @@ function buildGenerate(toolbox: Toolbox): (opts: Options) => Promise<string> {
             const dest = path(dir)
             write(dest, content)
         }
-        
+
         // send back the rendered string
         return content
     }
-    return generate
+    return {generate} as KcTemplate
 }
 
-export default buildGenerate
+export {buildTemplate,KcTemplate}

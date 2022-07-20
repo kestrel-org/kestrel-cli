@@ -1,12 +1,11 @@
-import { Command } from "@src/types/command";
+import { Command } from "@src/types/Command";
 import lookUpDef from '@utils/findProjectDef.js';
 import {Toolbox} from "@src/extensions/toolbox/toolbox.js";
 
 /**
  * Check if command is run in the correct scope
- *
- * @param {Toolbox} toolbox The cli toolbox
- * @param {Command} command The command file that is being run
+ * @param toolbox The cli toolbox
+ * @param command The command file that is being run
 */
 function scopeCheck(toolbox : Toolbox,command : Command){
 
@@ -19,7 +18,7 @@ function scopeCheck(toolbox : Toolbox,command : Command){
         // Check if current directory is in a kestrel-cli project
 
         const project_def = lookUpDef(process.cwd())
-        toolbox.project.project_def = project_def
+        toolbox.project.project_def = project_def as string
 
         if(command.scope == "in"){
             if (project_def === null) {

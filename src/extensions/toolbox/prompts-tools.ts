@@ -1,17 +1,20 @@
-import prompts from 'prompts';
+import { KcPrompts, Validate } from '@src/types/toolbox/prompts-tools';
+import prompts,{PromptObject,Answers} from 'prompts';
 
+/**
+ * Execute code when prompts are interupted
+ */
 function cancelProcess(){
   process.exit(0);
 }
 
 /**
  * Prompt a yes/no question
- *
  * @param message Message to prompt
  * @param initial Default response when prompting 'false' if not provided
- * @returns response
+ * @returns response as boolean
 */
-const confirm = async (message : string, initial : boolean = false) => {
+async function confirm(message : string, initial : boolean = false) : Promise<boolean>{
   const { yesno } = await prompts({
     type: 'toggle',
     name: 'yesno',
@@ -28,13 +31,12 @@ const confirm = async (message : string, initial : boolean = false) => {
 
 /**
  * Prompt a question with user input response
- *
  * @param message Message to prompt
  * @param validate Function to validate the user input
  * @param initial Default response when prompting empty string if not provided
- * @returns response
+ * @returns response as string
 */
-const ask = async (message : string, validate = (input : string)=>{return true},initial = "") => {
+ async function ask(message : string, validate : Validate = (input : string)=>{return true},initial = "") : Promise<string>{
   const { response } = await prompts({
       type: 'text',
       name: 'response',
@@ -51,14 +53,13 @@ const ask = async (message : string, validate = (input : string)=>{return true},
 
 /**
  * Prompt a single choice select
- *
  * @param message Message to prompt
  * @param choices List of choices
  * @param initial Default response when prompting '0' if not provided
  * @param convert
  * @returns response
 */
-const select = async (message : any,choices :any, initial = 0,convert=false) => {
+ async function select(message : any,choices :any, initial = 0,convert=false){
   if(convert){
     choices = choices.map((choice :any) =>{
       return {title : choice,value : choice}
@@ -80,12 +81,11 @@ const select = async (message : any,choices :any, initial = 0,convert=false) => 
 
 /**
  * Prompt for a string separated by ,
- *
  * @param message Message to prompt
  * @param initial Default response when prompting empty string if not provided
  * @returns response
 */
-const askList = async (message : string, initial = '') => {
+async function askList(message : string, initial = ''){
   const { response } = await prompts({
     type: 'list',
     name: 'response',
@@ -102,15 +102,21 @@ const askList = async (message : string, initial = '') => {
 
 /**
  * Create any prompts from the prompts package
- *
  * @param questions List of prompts Question object
  * @returns response
 */
-const any = async(questions : any) => await prompts(questions,{onCancel: cancelProcess})
+async function any<T extends string>(questions : PromptObject[]) : Promise<Answers<T>> {
+  const responses = await prompts(questions,
+    {
+      onCancel: cancelProcess
+    }
+  )
+  return responses
+}
 
 const inject = prompts.inject
 
-export default {
+const prompt : KcPrompts ={
   confirm,
   ask,
   select,
@@ -118,3 +124,5 @@ export default {
   any,
   inject
 }
+
+export {prompt,KcPrompts}

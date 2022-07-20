@@ -1,4 +1,4 @@
-import {Command} from "@src/types/command";
+import {Command} from "@src/types/Command";
 import {NewProps} from "@src/types/commands/new";
 import back_files from "@src/assets/back_files.js";
 import front_files from "@src/assets/front_files.js";
@@ -8,7 +8,7 @@ import url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 
-const command: Command = {
+const newCommand: Command = {
   name: "new",
   aliases: ["n"],
   scope: 'out',
@@ -27,13 +27,16 @@ const command: Command = {
     required: true
   }],
   description: "Create new project",
-  run: async (toolbox, options, args) => {
+  run: async (toolbox, options, args,command) => {
     const {
-      cli,
-      template: {generate},
-      system: {run,spawn},
-      fileSystem: {exists,removeAsync,copyAsync,cwd},
+      system: {run},
+      fileSystem: {exists,removeAsync,cwd},
       print: {infoLoader,error,warn},
+      saveLog : {
+        generate,
+        copy
+      },
+      exit,
       prompts,
       strings: {kebabCase},
       meta : {version},
@@ -51,12 +54,13 @@ const command: Command = {
 
     let single = Boolean(options.back ? !options.front : options.front)
 
+    
 
     const props: NewProps = {
       name: projectName,
       backend_path: "backend",
       frontend_path : "frontend",
-      kc_version: version
+      kc_version : version
     }
 
     let toCreate = ""
@@ -78,14 +82,18 @@ const command: Command = {
 
 
     if (!props.name || props.name.length === 0) {
-      error('You must provide a valid project name.')
-      error('Example: kc new my-project')
-      return undefined
+      const errorMsg = [
+        "You must provide a valid project name.",
+        "Example: kc new my-project"
+      ]
+      exit(command,errorMsg)
     } else if (!/^[a-z0-9-_]+$/.test(props.name)) {
       const validName = kebabCase(props.name)
-      error(`${props.name} is not a valid name. Use lower case, dashes and underscore only.`)
-      error(`Suggested: kc new ${validName}`)
-      return undefined
+      const errorMsg = [
+        `${props.name} is not a valid name. Use lower case, dashes and underscore only.`,
+        `Suggested: kc new ${validName}`
+      ]
+      exit(command,errorMsg)
     }
 
     if (exists(props.name)) {
@@ -107,7 +115,7 @@ const command: Command = {
             await removeAsync(path.join(__dirname,"../templates/angular-node"))
           }
           await simpleGit().clone('https://github.com/kestrel-org/kestrel.git', `${__dirname}/../templates/angular-node`,{})
-          await run("node " + __dirname + "/../utils/convertToTemplate.js")
+          await run("node",`${__dirname}/../utils/convertToTemplate.js`)
           resolve(true)
         } catch (err) {
           await toolbox.loader.fail()
@@ -125,12 +133,16 @@ const command: Command = {
     await toolbox.loader.succeed()
 
     toolbox.loader.start(infoLoader('Copying directory'))
-    await copyAsync(__dirname + '/../templates/angular-node/' + toCreate, props.name, {
-      overwrite: true,
-      matching: [
-        './!(.github|.git|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md|*.ejs)',
-        './!(.github|.git)/**/!(*.ejs)'
-      ]
+    await copy({
+      from : `${__dirname}/../templates/angular-node/${toCreate}`, 
+      target : props.name, 
+      options : {
+        overwrite: true,
+        matching: [
+          './!(.github|.git|ROADMAP.md|CHANGELOG.md|.mergify.yml|README.md|*.ejs)',
+          './!(.github|.git)/**/!(*.ejs)'
+        ]
+      }
     })
     await toolbox.loader.succeed()
 
@@ -149,12 +161,14 @@ const command: Command = {
     await Promise.all(generators)
     await toolbox.loader.succeed()
     
+    // Install dependecies
+
     const cwf = path.join(cwd(), props.name) 
 
     if(props.backend_path != null){
       toolbox.loader.start(infoLoader(`Installing ${path.basename(path.join(cwf,props.backend_path))} dependencies`))
           
-      await run(`npm`,['install'],{ 
+      await run(`npm`,'install',{ 
         cwd: path.join(cwf,props.backend_path)
       })
       await toolbox.loader.succeed()
@@ -162,16 +176,12 @@ const command: Command = {
     if(props.frontend_path != null){
       toolbox.loader.start(infoLoader(`Installing ${path.basename(path.join(cwf,props.frontend_path))} dependencies`))
           
-      await run(`npm`,['install'],{ 
+      await run(`npm`,'install',{ 
         cwd: path.join(cwf,props.frontend_path)
       })
       await toolbox.loader.succeed()
     }
-    
-    
-    
-    
   }
 }
 
-export default command
+export default newCommand

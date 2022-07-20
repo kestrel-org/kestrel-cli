@@ -1,11 +1,11 @@
 import {Command} from 'commander';
-import { Toolbox } from "./toolbox/toolbox";
+import { Loader } from './toolbox/loader-tools/worker.js';
+import { Toolbox } from "./toolbox/toolbox.js";
 
 /**
  * Handle exit operations
- *
- * @param {Toolbox} toolbox The cli toolbox
- * @param {Command} command The command file that is being run
+ * @param toolbox The cli toolbox
+ * @param command The command file that is being run
 */
 async function exitHandler(toolbox : Toolbox,command : Command){
 
@@ -16,15 +16,18 @@ async function exitHandler(toolbox : Toolbox,command : Command){
           error
       }
     } = toolbox
-
-    process.on('SIGINT', async () => {
-      if(toolbox.loader){
-          await toolbox.loader.fail()
-      }
-      process.exit(0);
-    });
+    const kcCommand = toolbox.commands[command.name()]
+    if(!kcCommand.sigint){
+      process.on('SIGINT', async () => {
+        if(toolbox.loader instanceof Loader){
+            await toolbox.loader.fail()
+        }
+        process.exit(0);
+      });
+    }
+    
     process.on('exit',(code)=>{
-      if(toolbox.fileSystemUpdates){
+      if(toolbox.fileSystemUpdates.length>0){
         log('')
         for(let elem of toolbox.fileSystemUpdates){
           switch(elem.action){
@@ -42,11 +45,10 @@ async function exitHandler(toolbox : Toolbox,command : Command){
       }
     })
     process.on("uncaughtException",async (err)=>{
-      if(toolbox.loader){
+      if(toolbox.loader instanceof Loader){
         await toolbox.loader.fail()
       }
-      error(`Kestrel-cli - ${err.stack}`)
-      process.exit(0);
+      toolbox.exit(command,`${err.stack}`)
     })
     
 }
