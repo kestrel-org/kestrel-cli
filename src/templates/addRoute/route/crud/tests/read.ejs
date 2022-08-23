@@ -1,0 +1,20 @@
+// GET
+describe('Get <%= props.model %>', () => {
+    it('should return <%= props.model %> list', async () => {
+        const res = await request(app)
+            .get('/api/<%= props.path %>');
+				expect(res.error.text).toBeUndefined();
+        expect(res.statusCode).toEqual(200);
+    })
+})
+
+// GET
+describe('Get <%= props.model %> by Id', () => {
+    it('should return a <%= props.model_single %>', async () => {
+        const res = await request(app)
+            .get('/api/<%= props.path %>/' + data.id);
+				expect(res.error.text).toBeUndefined();
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('<%= props.model_single %>')
+    })
+})

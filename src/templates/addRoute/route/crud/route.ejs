@@ -1,0 +1,7 @@
+import express from 'express';
+import models from '<%= props.path_to_model %>/index';
+const router = express.Router();
+
+<%- props.crudData %>
+
+export default router;

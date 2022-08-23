@@ -1,0 +1,3 @@
+	delete<%= props.model_name %>ById(<%= props.model_id %>: <%= props.model_id_type %>): Promise<any> {
+		return lastValueFrom(this.http.delete(`${this.BASEURL}<%= props.path %>/${<%= props.model_id %>}`, this.httpOptions));
+	}

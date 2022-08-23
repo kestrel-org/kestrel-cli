@@ -1,0 +1,12 @@
+import 'regenerator-runtime/runtime';
+import request from 'supertest';
+import app from '<%= props.path_to_app %>/src/app';
+
+const data = {
+
+<% for(let property of props.model_data){  -%>
+    "<%= property.name %>" : "",
+<%} %>
+}
+
+<%- props.crudData %>

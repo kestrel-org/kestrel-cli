@@ -1,0 +1,12 @@
+// POST
+describe('Post <%= props.model %>', () => {
+    it('should create and return a <%= props.model_single %>', async () => {
+        const res = await request(app)
+            .post('/api/<%= props.path %>')
+            .send(data);
+				expect(res.error.text).toBeUndefined();
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toHaveProperty('<%= props.model_single %>')
+        data.id = res.body.<%= props.model_single %>.id;
+    })
+})
