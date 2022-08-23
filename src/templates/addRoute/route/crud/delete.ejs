@@ -1,0 +1,35 @@
+	/**
+	* @swagger
+	*  /<%= props.path %>/{<%= props.model_id %>}:
+	*    delete:
+	*      description: Delete the <%= props.model_single %> object whose ID is provided as a parameter
+	*      tags: [<%= props.path %>]
+	*      parameters:
+	*        - in: path
+	*          name: <%= props.model_id %>
+	*          schema:
+	*            type: integer
+	*          required: true
+	*          description: The ID of the <%= props.model_single %> object
+	*      responses:
+	*        200:
+	*          description: OK
+	*        400:
+	*          description: Bad request
+	*/
+router.delete('/:<%= props.model_id %>', async function (req, res, next) {
+  try {
+    await models['<%= props.model %>'].destroy({
+      where: {
+        <%= props.model_id %>: req.params.<%= props.model_id %>
+      }
+    })
+    res.status(200).send({
+      msg: 'ok'
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});

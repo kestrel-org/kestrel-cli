@@ -1,0 +1,3 @@
+  post<%= props.model_name %>(<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %>: <%= property.type == 'integer' ? 'number' : property.type %><%= i < arr.length-1 ? ', ' : '' %><%}) %>): Promise<any> {
+    return lastValueFrom(this.http.post(`${this.BASEURL} <%= props.path %>`, {<% props.model_properties_post.forEach(function(property, i, arr){ %><%= property.fieldName %><%= i < arr.length-1 ? ', ' : '' %><%}) %>}, this.httpOptions));
+  }

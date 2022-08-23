@@ -1,0 +1,15 @@
+import 'regenerator-runtime/runtime';
+import request from 'supertest';
+import app from '<%= props.path_to_app %>/src/app';
+
+
+
+// GET
+describe('Get something', () => {
+    it('should return something', async () => {
+        const res = await request(app)
+            .get('/api/<%= props.path %>');
+				expect(res.error.text).toBeUndefined();
+        expect(res.statusCode).toEqual(200);
+    })
+})

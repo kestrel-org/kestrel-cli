@@ -1,0 +1,43 @@
+	/**
+	* @swagger
+	*  /<%= props.path %>:
+	*    put:
+	*      description: Modify a <%= props.model_single %> object 
+	*      tags: [<%= props.path %>]
+	*      requestBody:
+	*        required: true
+	*        content:
+	*          application/json:
+	*            schema:
+	*              $ref: '#/components/schemas/<%= props.model_def %>'
+	*      responses:
+	*        200:
+	*          description: The modified <%= props.model_single %> object
+	*          content:
+	*            application/json:
+	*              schema:
+	*                $ref: '#/components/schemas/<%= props.model_def %>'
+	*        400:
+	*          description: Bad request
+	*/
+router.put('/', async function (req, res, next) {
+  try {
+    // Separate id from data
+    const { <%= props.model_id %>: idObject, ...objectData } = req.body;
+    if (!idObject) {
+      res.status(400).send({
+        error: "Please provide an ID"
+      });
+    } else {
+      await models['<%= props.model %>'].update(objectData, { where: { <%= props.model_id %>: idObject } });
+      const <%= props.model_single %> = await models['<%= props.model %>'].findByPk(idObject);
+      res.status(200).send({
+        <%= props.model_single %>
+      });
+    }
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});

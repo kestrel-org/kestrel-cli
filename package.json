@@ -2,11 +2,16 @@
   "name": "@kestrels/cli",
   "version": "2.10.3",
   "description": "kestrel CLI",
+  "type": "module",
   "bin": {
-    "kc": "bin/kc"
+    "kc": "bin/kc.js"
   },
   "scripts": {
     "format": "prettier --write **/*.{js,json} && standard --fix",
+    "clean-build": "del-cli --force ./build",
+    "copy-templates": "node -e \"const fs = require('fs'); const data = fs.cpSync('./src/templates/','./build/templates/',{recursive : true});\"",
+    "compile": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "build": "npm run clean-build && npm run compile && npm run copy-templates",
     "lint": "standard",
     "test": "jest __tests__",
     "watch": "jest --watch",
@@ -14,9 +19,10 @@
     "coverage": "jest --coverage"
   },
   "files": [
-    "src",
+    "build",
     "LICENSE",
     "readme.md",
+    "CHANGELOG.md",
     "docs",
     "bin"
   ],
@@ -26,24 +32,38 @@
   },
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.1",
     "chokidar": "^3.5.3",
+    "commander": "^9.3.0",
     "compare-versions": "^4.1.3",
+    "cross-spawn": "^7.0.3",
     "dotenv": "^16.0.1",
-    "gluegun": "^5.1.2",
-    "ora": "^5.4.1",
+    "ejs": "^3.1.8",
+    "execa": "^6.1.0",
+    "fs-jetpack": "^4.3.1",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.2.6",
+    "ora": "^6.1.2",
+    "pluralize": "^8.0.0",
     "prompts": "^2.4.2",
-    "simple-git": "^3.10.0"
-  },
-  "overrides": {
-    "gluegun": {
-      "ejs": "3.1.8"
-    }
+    "simple-git": "^3.10.0",
+    "typescript": "^4.7.4"
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "@types/ejs": "^3.1.1",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^18.0.3",
+    "@types/pluralize": "^0.0.29",
+    "@types/prompts": "^2.0.14",
+    "@types/sequelize": "^4.28.14",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^4.0.1",
     "jest": "^28.1.0",
     "prettier": "^2.6.2",
-    "standard": "^17.0.0"
+    "standard": "^17.0.0",
+    "ts-node": "^10.8.2",
+    "tsc-alias": "^1.6.11"
   },
   "jest": {
     "testEnvironment": "node"

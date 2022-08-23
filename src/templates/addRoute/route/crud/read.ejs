@@ -1,0 +1,63 @@
+	/**
+	* @swagger
+	*  /<%= props.path %>:
+	*    get:
+	*      description: Return the <%= props.model %> list 
+	*      tags: [<%= props.path %>]
+	*      responses:
+	*        200:
+	*          content:
+	*            application/json:
+	*              schema:
+	*                $ref: '#/components/schemas/<%= props.model_def %>'
+	*        400:
+	*          description: Bad request
+	*/
+router.get('/', async function (req, res, next) {
+	try {
+		const <%= props.model %>= await models['<%= props.model %>'].findAll();
+		res.status(200).send({
+			<%= props.model %>
+		});
+	} catch (err) {
+		res.status(400).send({
+			error: err.parent ? err.parent.sqlMessage : err.errors
+		});
+	}
+});
+
+	/**
+	* @swagger
+	*  /<%= props.path %>/{<%= props.model_id %>}:
+	*    get:
+	*      description: Return the <%= props.model_single %> object whose ID is provided as a parameter
+	*      tags: [<%= props.path %>]
+	*      parameters:
+	*        - in: path
+	*          name: <%= props.model_id %>
+	*          schema:
+	*            type: integer
+	*          required: true
+	*          description: The ID of the <%= props.model_single %> objec
+	*      responses:
+	*        200:
+	*          description: <%= props.model_single %>
+	*          content:
+	*            application/json:
+	*              schema:
+	*                $ref: '#/components/schemas/<%= props.model_def %>'
+	*        400:
+	*          description: Bad request
+	*/
+router.get('/:<%= props.model_id %>', async function (req, res, next) {
+  try {
+    const <%= props.model_single %> = await models['<%= props.model %>'].findByPk(req.params.<%= props.model_id %>);
+    res.status(200).send({
+      <%= props.model_single %>
+    });
+  } catch (err) {
+    res.status(400).send({
+      error: err.parent ? err.parent.sqlMessage : err.errors
+    });
+  }
+});
