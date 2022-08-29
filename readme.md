@@ -4,7 +4,7 @@ A CLI for [kestrel](https://github.com/kestrel-org/kestrel).
 
 ## Documentation
 
-We have a [gitbook](https://sflorent.gitbook.io/kestrel/).
+We have a [github-page](https://kestrel-org.github.io/).
 
 ## License
 
